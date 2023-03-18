@@ -1,0 +1,17 @@
+.vscode
+.idea
+
+compiled
+target
+*.jar
+*.class
+
+/storage/
+/storage/*
+/index/
+/index/*
+/logs
+/logs/*
+
+/trec*/
+/TREC
