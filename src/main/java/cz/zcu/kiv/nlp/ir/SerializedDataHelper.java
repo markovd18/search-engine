@@ -1,7 +1,5 @@
 package cz.zcu.kiv.nlp.ir;
 
-import cz.zcu.kiv.nlp.ir.data.Topic;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,7 +9,6 @@ import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -31,7 +28,7 @@ public class SerializedDataHelper {
                         .collect(Collectors.toList());
             }
 
-            logger.warn("Attempting to load data of invalid type");
+            logger.warn("Attempting to load data of invalid type", object);
             return Collections.emptyList();
         } catch (Exception ex) {
             logger.error("Error while loading serialized documents", ex);
@@ -47,33 +44,5 @@ public class SerializedDataHelper {
             logger.error("Error while saving serialized data", e);
             throw new RuntimeException(e);
         }
-    }
-
-    static public List<Topic> loadTopic(File serializedFile) {
-        final Object object;
-        try {
-            final ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(serializedFile));
-            object = objectInputStream.readObject();
-            objectInputStream.close();
-            List map = (List) object;
-            if (!map.isEmpty() && map.get(0) instanceof Topic) {
-                return (List<Topic>) object;
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        return null;
-    }
-
-    public static void saveTopic(File outputFile, List<Topic> data) {
-        // save data
-        try {
-            final ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(outputFile));
-            objectOutputStream.writeObject(data);
-            objectOutputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        logger.info("Data saved to " + outputFile.getPath());
     }
 }

@@ -3,7 +3,9 @@ package cz.zcu.kiv.nlp.ir;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author tigi
@@ -17,28 +19,25 @@ public class IOUtils {
      *
      * @param inputStream stream
      * @return list of lines
+     * @throws IOException
+     * @throws UnsupportedEncodingException
      */
-    public static List<String> readLines(final InputStream inputStream) {
+    public static List<String> readLines(final InputStream inputStream)
+            throws UnsupportedEncodingException, IOException {
         if (inputStream == null) {
-            throw new IllegalArgumentException("Cannot locate stream");
+            return Collections.emptyList();
         }
-        try {
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
             List<String> result = new ArrayList<String>();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             String line;
-
             while ((line = br.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     result.add(line.trim());
                 }
             }
 
-            inputStream.close();
-
             return result;
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
         }
     }
 
@@ -48,21 +47,20 @@ public class IOUtils {
      * @param inputStream stream
      * @return text
      */
-    public static String readFile(InputStream inputStream) {
-        StringBuilder sb = new StringBuilder();
+    public static Optional<String> readFile(final InputStream inputStream) {
         if (inputStream == null) {
-            throw new IllegalArgumentException("Cannot locate stream");
+            return Optional.empty();
         }
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line + "\n");
             }
-            inputStream.close();
 
-            return sb.toString().trim();
-        } catch (IOException e) {
+            return Optional.of(sb.toString().trim());
+        } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -72,20 +70,14 @@ public class IOUtils {
      *
      * @param file file to save
      * @param list lines of text to save
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
      */
-    public static void saveFile(File file, Collection<String> list) {
-        PrintStream printStream = null;
-        try {
-            printStream = new PrintStream(new FileOutputStream(file), true, "UTF-8");
-
+    public static void saveFile(final File file, final Collection<String> list)
+            throws UnsupportedEncodingException, FileNotFoundException {
+        try (PrintStream printStream = new PrintStream(new FileOutputStream(file), true, "UTF-8")) {
             for (String text : list) {
                 printStream.println(text);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (printStream != null) {
-                printStream.close();
             }
         }
     }
@@ -95,19 +87,13 @@ public class IOUtils {
      *
      * @param file file to save
      * @param text text to save
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
      */
-    public static void saveFile(File file, String text) {
-        PrintStream printStream = null;
-        try {
-            printStream = new PrintStream(new FileOutputStream(file), true, "UTF-8");
-
+    public static void saveFile(final File file, final String text)
+            throws UnsupportedEncodingException, FileNotFoundException {
+        try (PrintStream printStream = new PrintStream(new FileOutputStream(file), true, "UTF-8")) {
             printStream.println(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (printStream != null) {
-                printStream.close();
-            }
         }
     }
 }

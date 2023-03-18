@@ -40,7 +40,7 @@ public class TestTrecEval {
         // TODO zde vytvořte objekt vaší implementované třídy Index
         Index index = new Index();
 
-        List<Topic> topics = SerializedDataHelper.loadTopic(new File(OUTPUT_DIR + "/topicData.bin"));
+        Collection<Topic> topics = SerializedDataHelper.loadData(new File(OUTPUT_DIR + "/topicData.bin"), Topic.class);
 
         File serializedData = new File(OUTPUT_DIR + "/czechData.bin");
 
