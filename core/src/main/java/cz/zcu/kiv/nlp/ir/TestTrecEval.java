@@ -92,7 +92,7 @@ public class TestTrecEval {
         }
         final File outputFile = new File(
                 OUTPUT_DIR + "/results " + SerializedDataHelper.SDF.format(System.currentTimeMillis()) + ".txt");
-        IOUtils.saveFile(outputFile, lines);
+        FileUtils.saveFile(outputFile, lines);
         // try to run evaluation
         try {
             runTrecEval(outputFile.toString());

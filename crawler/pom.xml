@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>cz.zcu.kiv</groupId>
+    <artifactId>search-engine</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <groupId>cz.zcu.kiv</groupId>
+  <artifactId>search-engine-crawler</artifactId>
+  <name>Search Engine Crawler</name>
+  <version>1.0-SNAPSHOT</version>
+  <description></description>
+  <inceptionYear>2023</inceptionYear>
+  <packaging>jar</packaging>
+  <url></url>
+
+  <developers>
+    <developer>
+      <name>David Markov</name>
+      <email>markov.david@seznam.cz</email>
+      <url>https://www.linkedin.com/in/david-markov-9070ba181/</url>
+    </developer>
+  </developers>
+
+  <properties>
+    <java.version>17</java.version>
+  </properties>
+
+
+  <dependencies>
+    <!-- SHARED -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+
+    <!-- SPECIFIC -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.15.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sleepycat</groupId>
+      <artifactId>je</artifactId>
+      <version>18.3.12</version>
+    </dependency>
+    <dependency>
+      <groupId>us.codecraft</groupId>
+      <artifactId>xsoup</artifactId>
+      <version>0.3.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>edu.uci.ics</groupId>
+      <artifactId>crawler4j</artifactId>
+      <version>4.4.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sleepycat</groupId>
+          <artifactId>je</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>4.8.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cz.zcu.kiv</groupId>
+      <artifactId>search-engine-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

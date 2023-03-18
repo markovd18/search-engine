@@ -1,6 +1,7 @@
 package cz.zcu.kiv.nlp.ir;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author tigi
- *
- *         IOUtils, existující metody neměňte.
+ * Collection of utility functions for working with files.
  */
-public class IOUtils {
+public class FileUtils {
+
+    public static final java.text.DateFormat SDF = new SimpleDateFormat("yyyy-MM-dd_HH_mm_SS");
 
     /**
      * Read lines from the stream; lines are trimmed and empty lines are ignored.
