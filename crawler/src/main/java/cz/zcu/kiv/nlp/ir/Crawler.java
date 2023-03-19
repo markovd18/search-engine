@@ -1,7 +1,6 @@
 package cz.zcu.kiv.nlp.ir;
 
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,12 +9,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
 
 /**
  * CrawlerVSCOM class acts as a controller. You should only adapt this file to
@@ -46,10 +46,10 @@ public class Crawler {
      */
     private final int politenessIntervalMillis;
     private final HTMLDownloader downloader;
-    private final Storage storage;
+    private final UrlStorage storage;
 
     public Crawler(final HTMLDownloader downloader, final int politenessIntervalMillis,
-            final Storage storage) {
+            final UrlStorage storage) {
         validateParams(downloader, politenessIntervalMillis, storage);
 
         this.downloader = downloader;
@@ -58,17 +58,12 @@ public class Crawler {
     }
 
     private void validateParams(final HTMLDownloader downloader, final int politenessIntervalMillis,
-            final Storage storage) {
-        if (downloader == null) {
-            throw new IllegalArgumentException("Downloader may not be null");
-        }
+            final UrlStorage storage) {
+        checkNotNull(downloader, "Downloader");
+        checkNotNull(storage, "storage");
 
         if (politenessIntervalMillis <= 0) {
             throw new IllegalArgumentException("Politeness interval has to be a positive integer");
-        }
-
-        if (storage == null) {
-            throw new IllegalArgumentException("Storage may not be null");
         }
     }
 
@@ -80,13 +75,12 @@ public class Crawler {
             results.put(key, map);
         }
 
-        final var urlsResult = loadUrls();
-        if (urlsResult.isEmpty()) {
+        final var urls = loadUrls();
+        if (urls.isEmpty()) {
             log.error("Error while loading urls");
             return;
         }
 
-        final var urls = urlsResult.get();
         storage.saveUrls(urls, URLS_STORAGE_PATH);
 
         final var printStreamMap = initiatePrintStreams(results);
@@ -111,13 +105,13 @@ public class Crawler {
         log.info("-----------------------------");
     }
 
-    private Optional<Set<String>> loadUrls() {
+    private Set<String> loadUrls() {
         final var storedUrls = storage.loadUrls(URLS_STORAGE_PATH);
-        if (storedUrls.isPresent()) {
+        if (!storedUrls.isEmpty()) {
             return storedUrls;
         }
 
-        return Optional.of(crawlUrlsFromWebsite());
+        return crawlUrlsFromWebsite();
     }
 
     private Set<String> crawlUrlsFromWebsite() {
