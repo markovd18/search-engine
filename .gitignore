@@ -6,12 +6,14 @@ target
 *.jar
 *.class
 
-/storage/
+**/storage
 /storage/*
 /index/
 /index/*
+
 /logs
 /logs/*
+**/logs
 
-/trec*/
+**/trec*/
 /TREC
