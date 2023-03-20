@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "path": "core",
+      "name": "Core"
+    },
+    {
+      "path": "crawler",
+      "name": "Crawler"
+    },
+    {
+      "path": "utils",
+      "name": "Utils"
+    },
+    {
+      "path": "./",
+      "name": "root"
+    }
+  ],
+  "settings": {
+    "java.compile.nullAnalysis.mode": "automatic",
+  }
+}
