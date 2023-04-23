@@ -54,10 +54,20 @@ public class FSStorage<TDocument> implements Storage<TDocument> {
     return Collections.emptySet();
   }
 
+  @Override
+  public boolean hasData() {
+    final File outputDir = new File(path);
+    if (!outputDir.exists() || !outputDir.isDirectory()) {
+      return false;
+    }
+
+    return outputDir.list().length > 0;
+  }
+
   private void createStorageIfNotExists(final String path) {
     var outputDir = new File(path);
     if (outputDir.exists()) {
-      logger.info("Initiated storage from existing directory: '%s'", path);
+      logger.info("Initiated storage from existing directory: '{}'", path);
       return;
     }
 

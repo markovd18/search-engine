@@ -4,7 +4,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cz.zcu.kiv.nlp.ir.article.Article;
 import cz.zcu.kiv.nlp.ir.command.CommandParser;
+import cz.zcu.kiv.nlp.ir.storage.Storage;
 import cz.zcu.kiv.nlp.ir.tokenizer.DefaultTokenizer;
 import cz.zcu.kiv.nlp.ir.tokenizer.Tokenizer;
 
