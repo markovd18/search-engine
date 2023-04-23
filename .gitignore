@@ -17,3 +17,7 @@ target
 
 **/trec*/
 /TREC
+
+
+!**/java/**/storage
+!**/java/**/index

@@ -16,15 +16,15 @@ public class Main {
 
     if (config.isJustPrintHelp()) {
       final var formatter = new HelpFormatter();
-      formatter.printHelp("search-engine", parser.getOptions());
+      formatter.printHelp("search-engine [-s STORAGE] [-m MODEL] [-i INDEX]", parser.getOptions());
       return;
     }
 
     final Logger logger = LoggerFactory.getLogger(Main.class);
     final Tokenizer tokenizer = new DefaultTokenizer(LoggerFactory.getILoggerFactory());
     tokenizer.tokenize("Ahoj, světe.");
-
     logger.info("Hello, world!");
+
     logger.error("Error");
     logger.warn("Warning");
     logger.debug("Debug");

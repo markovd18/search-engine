@@ -1,31 +1,39 @@
 package cz.zcu.kiv.nlp.ir;
 
-import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
+import cz.zcu.kiv.nlp.ir.article.Article;
+import cz.zcu.kiv.nlp.ir.storage.Storage;
 
 public class Configuration {
 
   private final boolean justPrintHelp;
-  // TODO Interface
-  private final String storage;
+  private final Storage<? extends Article> storage;
   // TODO Interface
   private final String model;
+  // TODO Interface
+  private final String index;
 
-  private Configuration(final boolean justPrintHelp, final String storage, final String model) {
+  private Configuration(final boolean justPrintHelp, final Storage<? extends Article> storage, final String model,
+      final String index) {
     this.justPrintHelp = justPrintHelp;
     this.storage = storage;
     this.model = model;
+    this.index = index;
   }
 
   public boolean isJustPrintHelp() {
     return justPrintHelp;
   }
 
-  public String getStorage() {
+  public Storage<? extends Article> getStorage() {
     return storage;
   }
 
   public String getModel() {
     return model;
+  }
+
+  public String getIndex() {
+    return index;
   }
 
   public static ConfigurationBuilder builder() {
@@ -35,15 +43,16 @@ public class Configuration {
   public static class ConfigurationBuilder {
 
     private boolean justPrintHelp = false;
-    private String storage;
+    private Storage<? extends Article> storage;
     private String model;
+    private String index;
 
     public ConfigurationBuilder justPrintHelp(final boolean justPrintHelp) {
       this.justPrintHelp = justPrintHelp;
       return this;
     }
 
-    public ConfigurationBuilder storage(final String storage) {
+    public ConfigurationBuilder storage(final Storage<? extends Article> storage) {
       this.storage = storage;
       return this;
     }
@@ -53,10 +62,16 @@ public class Configuration {
       return this;
     }
 
+    public ConfigurationBuilder index(final String index) {
+      this.index = index;
+      return this;
+    }
+
     public Configuration build() {
-      checkNotNull(storage, "Storage");
-      checkNotNull(model, "Model");
-      return new Configuration(justPrintHelp, storage, model);
+      // checkNotNull(storage, "Storage");
+      // checkNotNull(model, "Model");
+      // checkNotNull(index, "Index");
+      return new Configuration(justPrintHelp, storage, model, index);
     }
   }
 

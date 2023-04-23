@@ -19,5 +19,6 @@
   ],
   "settings": {
     "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": "java-formatter.xml",
   }
 }
