@@ -10,4 +10,6 @@ import java.util.Set;
 public interface Storage<TDocument> {
 
   Set<TDocument> getEntries();
+
+  boolean hasData();
 }

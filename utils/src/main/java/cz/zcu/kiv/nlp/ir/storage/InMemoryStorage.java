@@ -22,4 +22,9 @@ public class InMemoryStorage<TDocument> implements Storage<TDocument> {
     return entries;
   }
 
+  @Override
+  public boolean hasData() {
+    return entries != null && entries.size() > 0;
+  }
+
 }
