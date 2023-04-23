@@ -5,12 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,21 +16,25 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
 import cz.zcu.kiv.nlp.ir.FileUtils;
+import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 
 public class FSStorage<TDocument> implements Storage<TDocument> {
+
+  public static final String DEFAULT_PATH = "storage";
 
   private final Logger logger;
 
   private final String path;
-  private final Function<List<String>, TDocument> factory;
 
-  public FSStorage(final String path, final Function<List<String>, TDocument> factory,
+  private final FileLoader<TDocument> fileLoader;
+
+  public FSStorage(final String path, final FileLoader<TDocument> fileLoader,
       final ILoggerFactory loggerFactory) {
     validate(path);
 
     this.logger = loggerFactory.getLogger(getClass().getName());
     this.path = path;
-    this.factory = factory;
+    this.fileLoader = fileLoader;
     createStorageIfNotExists(path);
   }
 
@@ -101,16 +103,16 @@ public class FSStorage<TDocument> implements Storage<TDocument> {
   }
 
   private Set<TDocument> loadDocumentsFromStorage(final File directory) {
-    return Arrays.stream(directory.listFiles())
-        .map(entry -> {
-          try {
-            return FileUtils.readLines(new FileInputStream(entry));
-          } catch (final IOException e) {
-            logger.error("Error while loading document from storage", e);
-            return new ArrayList<String>();
-          }
-        })
-        .map(lines -> factory.apply(lines)).collect(Collectors.toSet());
+    final Set<TDocument> documents = new HashSet<>();
+    for (final var entry : directory.listFiles()) {
+      try {
+        documents.add(fileLoader.loadFromFile(entry));
+      } catch (final IOException e) {
+        logger.error("Error while loading document from storage", e);
+      }
+    }
+
+    return documents;
   }
 
 }
