@@ -49,6 +49,11 @@
       <artifactId>search-engine-utils</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>cz.zcu.kiv</groupId>
+      <artifactId>search-engine-crawler</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>commons-cli</groupId>

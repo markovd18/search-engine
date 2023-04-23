@@ -1,5 +1,8 @@
 package cz.zcu.kiv.nlp.ir;
 
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +23,10 @@ public class UrlStorage {
   private final FileLoader<Set<String>> loader;
 
   public UrlStorage(final String path, final FileLoader<Set<String>> loader, final ILoggerFactory loggerFactory) {
+    checkNotNull(loader, "URL Loader");
+    checkNotNull(loggerFactory, "Logger factory");
+    checkNotBlank(path, "URL storage path");
+
     this.basePath = path;
     this.loader = loader;
     this.logger = loggerFactory.getLogger(getClass().getName());
