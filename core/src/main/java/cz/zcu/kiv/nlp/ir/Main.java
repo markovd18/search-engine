@@ -6,11 +6,16 @@ import org.slf4j.LoggerFactory;
 
 import cz.zcu.kiv.nlp.ir.article.Article;
 import cz.zcu.kiv.nlp.ir.command.CommandParser;
+import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloader;
+import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloaderSelenium;
+import cz.zcu.kiv.nlp.ir.fileLoader.UrlFileLoader;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 import cz.zcu.kiv.nlp.ir.tokenizer.DefaultTokenizer;
 import cz.zcu.kiv.nlp.ir.tokenizer.Tokenizer;
 
 public class Main {
+
+  private static final long DEFAULT_CRAWLER_POLITENESS_INTERVAL = 1200;
 
   public static void main(final String[] args) {
     final var parser = new CommandParser(LoggerFactory.getILoggerFactory());
@@ -22,6 +27,13 @@ public class Main {
       return;
     }
 
+    final Storage<? extends Article> storage = config.getStorage();
+    if (!storage.hasData()) {
+      // TODO article storage as a parameter
+      final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL);
+      crawler.crawl();
+    }
+
     final Logger logger = LoggerFactory.getLogger(Main.class);
     final Tokenizer tokenizer = new DefaultTokenizer(LoggerFactory.getILoggerFactory());
     tokenizer.tokenize("Ahoj, světe.");
@@ -31,5 +43,11 @@ public class Main {
     logger.warn("Warning");
     logger.debug("Debug");
     logger.trace("Not working");
+  }
+
+  private static final Crawler createCrawler(final long politenessIntervalMillis) {
+    final HTMLDownloader downloader = new HTMLDownloaderSelenium();
+    final UrlStorage urlStorage = new UrlStorage("urls", new UrlFileLoader(), LoggerFactory.getILoggerFactory());
+    return new Crawler(downloader, politenessIntervalMillis, urlStorage);
   }
 }

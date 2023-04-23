@@ -29,8 +29,6 @@ public class Crawler {
     private final static Map<String, String> xpathMap = new HashMap<String, String>();
 
     static {
-        xpathMap.put("allText", "//div[contains(@class, 'article')]/allText()");
-        xpathMap.put("html", "//div[contains(@class, 'article')]/html()");
         xpathMap.put("tidyText", "//div[contains(@class, 'article')]/tidyText()");
     }
 
@@ -44,11 +42,11 @@ public class Crawler {
      * Be polite and don't send requests too often.
      * Waiting period between requests.
      */
-    private final int politenessIntervalMillis;
+    private final long politenessIntervalMillis;
     private final HTMLDownloader downloader;
     private final UrlStorage storage;
 
-    public Crawler(final HTMLDownloader downloader, final int politenessIntervalMillis,
+    public Crawler(final HTMLDownloader downloader, final long politenessIntervalMillis,
             final UrlStorage storage) {
         validateParams(downloader, politenessIntervalMillis, storage);
 
@@ -57,14 +55,10 @@ public class Crawler {
         this.storage = storage;
     }
 
-    private void validateParams(final HTMLDownloader downloader, final int politenessIntervalMillis,
+    private void validateParams(final HTMLDownloader downloader, final long politenessIntervalMillis,
             final UrlStorage storage) {
         checkNotNull(downloader, "Downloader");
         checkNotNull(storage, "storage");
-
-        if (politenessIntervalMillis <= 0) {
-            throw new IllegalArgumentException("Politeness interval has to be a positive integer");
-        }
     }
 
     public void crawl() {
@@ -190,7 +184,8 @@ public class Crawler {
     /**
      * Save file with failed links for later examination.
      *
-     * @param failedLinks links that couldn't be downloaded, extracted etc.
+     * @param failedLinks
+     *            links that couldn't be downloaded, extracted etc.
      */
     private void reportProblems(Set<String> failedLinks) {
         if (failedLinks.isEmpty()) {
