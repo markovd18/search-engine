@@ -21,3 +21,4 @@ target
 
 !**/java/**/storage
 !**/java/**/index
+**/chromedriver
