@@ -1,14 +1,11 @@
 package cz.zcu.kiv.nlp.ir;
 
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import cz.zcu.kiv.nlp.ir.storage.Storage;
+
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,19 +21,17 @@ import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
  */
 public class Crawler {
     /**
-     * Xpath expressions to extract and their descriptions.
+     * Xpath expression to extract.
      */
-    private final static Map<String, String> xpathMap = new HashMap<String, String>();
-
-    static {
-        xpathMap.put("tidyText", "//div[contains(@class, 'article')]/tidyText()");
-    }
+    private static final String XPATH = "//div[contains(@class, 'article')]/tidyText()";
+    // private static final String XPATH = "//div[contains(@class,
+    // 'article')]/div[contains(@class, 'box__info')]/a[contains(@class,
+    // 'author')]/tidyText()";
 
     private static String SITE = "https://www.hokej.cz";
-
     private static String URLS_STORAGE_PATH = "_urls.txt";
 
-    private static final Logger log = LoggerFactory.getLogger(Crawler.class);
+    private static final Logger logger = LoggerFactory.getLogger(Crawler.class);
 
     /**
      * Be polite and don't send requests too often.
@@ -44,50 +39,46 @@ public class Crawler {
      */
     private final long politenessIntervalMillis;
     private final HTMLDownloader downloader;
-    private final UrlStorage storage;
+    private final UrlStorage urlStorage;
+    private final Storage<?> articleStorage;
 
     public Crawler(final HTMLDownloader downloader, final long politenessIntervalMillis,
-            final UrlStorage storage) {
-        validateParams(downloader, politenessIntervalMillis, storage);
+            final UrlStorage urlStorage, final Storage<?> articleStorage) {
+        validateParams(downloader, politenessIntervalMillis, urlStorage, articleStorage);
 
         this.downloader = downloader;
         this.politenessIntervalMillis = politenessIntervalMillis;
-        this.storage = storage;
+        this.urlStorage = urlStorage;
+        this.articleStorage = articleStorage;
     }
 
     private void validateParams(final HTMLDownloader downloader, final long politenessIntervalMillis,
-            final UrlStorage storage) {
+            final UrlStorage storage, final Storage<?> articleStorage) {
         checkNotNull(downloader, "Downloader");
         checkNotNull(storage, "storage");
+        checkNotNull(articleStorage, "Article storage");
     }
 
     public void crawl() {
-        Map<String, Map<String, List<String>>> results = new HashMap<String, Map<String, List<String>>>();
-
-        for (String key : xpathMap.keySet()) {
-            Map<String, List<String>> map = new HashMap<String, List<String>>();
-            results.put(key, map);
-        }
-
         final var urls = loadUrls();
         if (urls.isEmpty()) {
-            log.error("Error while loading urls");
+            logger.error("Error while loading urls");
             return;
         }
 
-        storage.saveUrls(urls, URLS_STORAGE_PATH);
-
-        final var printStreamMap = initiatePrintStreams(results);
+        urlStorage.saveUrls(urls, URLS_STORAGE_PATH);
 
         int count = 0;
-        for (String url : urls) {
-            processUrl(url, count, urls.size(), results, printStreamMap);
+        for (final String url : urls) {
+            final var content = processUrl(url, count, urls.size());
+            final boolean savedSuccessfully = articleStorage.saveEntry(content);
             count++;
+            if (!savedSuccessfully) {
+                logger.error("Couldn't save article no.{}", count);
+            }
 
             waitForPolitenessDuration();
         }
-
-        closePrintStreams(results, printStreamMap);
 
         // Save links that failed in some way.
         // Be sure to go through these and explain why the process failed on these
@@ -96,11 +87,11 @@ public class Crawler {
         // data.
         reportProblems(downloader.getFailedLinks());
         downloader.emptyFailedLinks();
-        log.info("-----------------------------");
+        logger.info("-----------------------------");
     }
 
     private Set<String> loadUrls() {
-        final var storedUrls = storage.loadUrls(URLS_STORAGE_PATH);
+        final var storedUrls = urlStorage.loadUrls(URLS_STORAGE_PATH);
         if (!storedUrls.isEmpty()) {
             return storedUrls;
         }
@@ -123,61 +114,31 @@ public class Crawler {
         return mainArticleUrls;
     }
 
-    private Map<String, PrintStream> initiatePrintStreams(final Map<String, Map<String, List<String>>> results) {
-        Map<String, PrintStream> printStreamMap = new HashMap<String, PrintStream>();
-        for (String key : results.keySet()) {
-            File file = storage.createFile(FileUtils.SDF.format(System.currentTimeMillis()) + "_" + key + ".txt");
-            PrintStream printStream = null;
-            try {
-                printStream = new PrintStream(new FileOutputStream(file));
-            } catch (final FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            printStreamMap.put(key, printStream);
-        }
-
-        return printStreamMap;
-    }
-
-    private void closePrintStreams(final Map<String, Map<String, List<String>>> results,
-            final Map<String, PrintStream> printStreamMap) {
-        for (String key : results.keySet()) {
-            PrintStream printStream = printStreamMap.get(key);
-            printStream.close();
-        }
-    }
-
-    private void processUrl(final String url, final int order, final int totalCount,
-            final Map<String, Map<String, List<String>>> results,
-            final Map<String, PrintStream> printStreamMap) {
+    private List<String> processUrl(final String url, final int order, final int totalCount) {
         final var link = Links.prependBaseUrlIfNeeded(url, SITE);
         // Download and extract data according to xpathMap
-        Map<String, List<String>> products = downloader.processUrl(link, xpathMap);
+        final List<String> products = downloader.processUrl(link, XPATH);
         if (order % 100 == 0) {
-            log.info(order + " / " + totalCount + " = " + order / ((float) totalCount) + "% done.");
+            logger.info(order + " / " + totalCount + " = " + order / ((float) totalCount) + "% done.");
         }
-        for (String key : results.keySet()) {
-            Map<String, List<String>> map = results.get(key);
-            List<String> list = products.get(key);
-            if (list == null) {
-                continue;
-            }
 
-            map.put(url, list);
-            log.info(Arrays.toString(list.toArray()));
-            // print
-            PrintStream printStream = printStreamMap.get(key);
-            for (String result : list) {
-                printStream.println(url + "\t" + result);
-            }
+        logger.debug(Arrays.toString(products.toArray()));
+
+        final var result = new LinkedList<String>();
+        for (final var product : products) {
+            // maybe add url as a first line so we can index and query it later??
+            final var lines = product.split("\n");
+            result.addAll(Arrays.asList(lines));
         }
+
+        return result;
     }
 
     private void waitForPolitenessDuration() {
         try {
             Thread.sleep(politenessIntervalMillis);
         } catch (InterruptedException e) {
-            log.error("Error while performing sleep", e);
+            logger.error("Error while performing sleep", e);
         }
     }
 
@@ -192,10 +153,10 @@ public class Crawler {
             return;
         }
 
-        storage.saveUrls(failedLinks,
+        urlStorage.saveUrls(failedLinks,
                 FileUtils.SDF.format(System.currentTimeMillis()) + "_failed_links_size_"
                         + failedLinks.size() + ".txt");
-        log.info("Failed links: " + failedLinks.size());
+        logger.info("Failed links: " + failedLinks.size());
     }
 
 }

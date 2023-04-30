@@ -30,6 +30,24 @@ public class UrlStorage {
     this.basePath = path;
     this.loader = loader;
     this.logger = loggerFactory.getLogger(getClass().getName());
+    createStorageIfNotExists(path);
+  }
+
+  private void createStorageIfNotExists(final String path) {
+    var outputDir = new File(path);
+    if (outputDir.exists()) {
+      logger.info("Initiated storage from existing directory: '{}'", path);
+      return;
+    }
+
+    boolean mkdirs = outputDir.mkdirs();
+    if (mkdirs) {
+      logger.info("Output directory created: '{}'", outputDir);
+    } else {
+      logger.error(
+          "URL storage directory can't be created!\nOutput directory: '{}'",
+          outputDir);
+    }
   }
 
   public File createFile(final String name) {

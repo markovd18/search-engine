@@ -29,8 +29,7 @@ public class Main {
 
     final Storage<? extends Article> storage = config.getStorage();
     if (!storage.hasData()) {
-      // TODO article storage as a parameter
-      final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL);
+      final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL, storage);
       crawler.crawl();
     }
 
@@ -45,9 +44,10 @@ public class Main {
     logger.trace("Not working");
   }
 
-  private static final Crawler createCrawler(final long politenessIntervalMillis) {
+  private static final Crawler createCrawler(final long politenessIntervalMillis,
+      final Storage<? extends Article> storage) {
     final HTMLDownloader downloader = new HTMLDownloaderSelenium();
     final UrlStorage urlStorage = new UrlStorage("urls", new UrlFileLoader(), LoggerFactory.getILoggerFactory());
-    return new Crawler(downloader, politenessIntervalMillis, urlStorage);
+    return new Crawler(downloader, politenessIntervalMillis, urlStorage, storage);
   }
 }

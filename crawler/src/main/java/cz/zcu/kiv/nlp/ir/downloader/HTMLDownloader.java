@@ -1,7 +1,6 @@
 package cz.zcu.kiv.nlp.ir.downloader;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,19 +23,23 @@ public interface HTMLDownloader {
     public void emptyFailedLinks();
 
     /**
-     * Downloads given url page and extracts xpath expressions.
+     * Downloads given url page and extracts xpath expression.
      *
-     * @param url      page url
-     * @param xpathMap pairs of description and xpath expression
-     * @return pairs of descriptions and extracted values
+     * @param url
+     *            page url
+     * @param xpath
+     *            xpath expression
+     * @return extracted values
      */
-    public Map<String, List<String>> processUrl(String url, Map<String, String> xpathMap);
+    public List<String> processUrl(String url, String xpath);
 
     /**
      * Downloads given url page and extracts xpath expression.
      *
-     * @param url   page url
-     * @param xPath xpath expression
+     * @param url
+     *            page url
+     * @param xPath
+     *            xpath expression
      * @return list of extracted values
      */
     public List<String> getLinks(String url, String xPath);

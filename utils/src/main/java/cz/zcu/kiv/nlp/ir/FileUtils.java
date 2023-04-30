@@ -18,7 +18,8 @@ public class FileUtils {
     /**
      * Read lines from the stream; lines are trimmed and empty lines are ignored.
      *
-     * @param inputStream stream
+     * @param inputStream
+     *            stream
      * @return list of lines
      * @throws IOException
      * @throws UnsupportedEncodingException
@@ -45,7 +46,8 @@ public class FileUtils {
     /**
      * Read lines from the stream; lines are trimmed and empty lines are ignored.
      *
-     * @param inputStream stream
+     * @param inputStream
+     *            stream
      * @return text
      */
     public static Optional<String> readFile(final InputStream inputStream) {
@@ -69,8 +71,10 @@ public class FileUtils {
     /**
      * Saves lines from the list into given file; each entry is saved as a new line.
      *
-     * @param file file to save
-     * @param list lines of text to save
+     * @param file
+     *            file to save
+     * @param list
+     *            lines of text to save
      * @throws FileNotFoundException
      * @throws UnsupportedEncodingException
      */
@@ -86,8 +90,10 @@ public class FileUtils {
     /**
      * Saves lines from the list into given file; each entry is saved as a new line.
      *
-     * @param file file to save
-     * @param text text to save
+     * @param file
+     *            file to save
+     * @param text
+     *            text to save
      * @throws FileNotFoundException
      * @throws UnsupportedEncodingException
      */

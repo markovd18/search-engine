@@ -1,5 +1,7 @@
 package cz.zcu.kiv.nlp.ir.storage;
 
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,21 +23,28 @@ import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 public class FSStorage<TDocument> implements Storage<TDocument> {
 
   public static final String DEFAULT_PATH = "storage";
+  public static final String ENTRY_FILE_NAME_PREFIX = "entry-";
+  public static final String ENTRY_FILE_NAME_SUFFIX = ".txt";
 
   private final Logger logger;
-
-  private final String path;
-
   private final FileLoader<TDocument> fileLoader;
+  private final StorableContentFormatter contentFormatter;
+  private final String path;
+  private long nextEntryId = 0;
 
   public FSStorage(final String path, final FileLoader<TDocument> fileLoader,
+      final StorableContentFormatter contentFormatter,
       final ILoggerFactory loggerFactory) {
     validate(path);
+    checkNotNull(fileLoader, "File Loader");
+    checkNotNull(contentFormatter, "Content Formatter");
 
     this.logger = loggerFactory.getLogger(getClass().getName());
     this.path = path;
     this.fileLoader = fileLoader;
+    this.contentFormatter = contentFormatter;
     createStorageIfNotExists(path);
+    this.nextEntryId = size() + 1;
   }
 
   private void validate(final String path) {
@@ -56,12 +65,35 @@ public class FSStorage<TDocument> implements Storage<TDocument> {
 
   @Override
   public boolean hasData() {
-    final File outputDir = new File(path);
-    if (!outputDir.exists() || !outputDir.isDirectory()) {
+    return size() > 0;
+  }
+
+  public long size() {
+    final File directory = new File(path);
+    if (!directory.exists() || !directory.isDirectory()) {
+      return 0;
+    }
+
+    return directory.list().length;
+  }
+
+  @Override
+  public boolean saveEntry(final List<String> content) {
+    final var formattedContent = contentFormatter.formatStorableContent(content);
+    if (formattedContent.isEmpty()) {
       return false;
     }
 
-    return outputDir.list().length > 0;
+    final File entry = createFile(nextEntryId);
+    try {
+      FileUtils.saveFile(entry, formattedContent);
+    } catch (UnsupportedEncodingException | FileNotFoundException e) {
+      logger.error("Error while saving entry", e);
+      return false;
+    }
+
+    nextEntryId++;
+    return true;
   }
 
   private void createStorageIfNotExists(final String path) {
@@ -100,6 +132,11 @@ public class FSStorage<TDocument> implements Storage<TDocument> {
 
   public String getPath() {
     return this.path;
+  }
+
+  private File createFile(final long entryId) {
+    final String entryName = ENTRY_FILE_NAME_PREFIX + String.format("%02d", entryId) + ENTRY_FILE_NAME_SUFFIX;
+    return new File(path + "/" + entryName);
   }
 
   private Set<String> loadLinesFromStorage(final File storage) {

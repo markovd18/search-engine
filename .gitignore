@@ -10,6 +10,8 @@ target
 /storage/*
 /index/
 /index/*
+**/urls
+/urls/*
 
 /logs
 /logs/*
@@ -21,4 +23,6 @@ target
 
 !**/java/**/storage
 !**/java/**/index
+!**/java/**/urls
+
 **/chromedriver
