@@ -28,4 +28,9 @@ public record HokejCzArticle(
     return this.content;
   }
 
+  @Override
+  public String getText() {
+    return getContent();
+  }
+
 }

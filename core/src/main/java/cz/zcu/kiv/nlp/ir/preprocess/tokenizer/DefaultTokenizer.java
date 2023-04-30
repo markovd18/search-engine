@@ -1,4 +1,4 @@
-package cz.zcu.kiv.nlp.ir.tokenizer;
+package cz.zcu.kiv.nlp.ir.preprocess.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 public class DefaultTokenizer implements Tokenizer {
 
   // TODO check better alternatives for tokenization
-  // TODO also try to optimize crawler to get rod of '<>' characters and all the
   // video player junk
 
   private static final String hrefRegex = "(((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?))";
@@ -40,6 +39,7 @@ public class DefaultTokenizer implements Tokenizer {
       words.add(text.substring(start, end));
     }
 
+    logger.debug("Tokenization finished. Found {} tokens", words.size());
     return words;
   }
 

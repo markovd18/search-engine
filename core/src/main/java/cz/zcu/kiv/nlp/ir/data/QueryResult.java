@@ -5,7 +5,8 @@ package cz.zcu.kiv.nlp.ir.data;
  *
  * Rozhraní představuje výsledek pro ohodnocené vyhledávání. Tzn. po zadání
  * dotazu vyhledávač vrátí
- * "List<Result>", kde každý objekt {@link Result} reprezentuje jeden dokument a
+ * "List<Result>", kde každý objekt {@link QueryResult} reprezentuje jeden
+ * dokument a
  * jeho relevanci k zadanému dotazu.
  * => tj. id dokumentu, skóre podobnosti mezi tímto dokumentem a dotazem (např.
  * kosinova podobnost) a rank tj.
@@ -15,16 +16,16 @@ package cz.zcu.kiv.nlp.ir.data;
  * Toto rozhranní neimplementujte, ale použijte třídu {@link ResultImpl}, kterou
  * můžete libovolně upravovat, případně
  * si vytvořte vlastní třídu, která dědí od abstraktní třídy
- * {@link AbstractResult}.
+ * {@link DefaultQueryResult}.
  */
-public interface Result {
+public interface QueryResult {
 
     /**
      * Vrátí id dokumentu
      * 
      * @return id dokumentu
      */
-    String getDocumentID();
+    String getDocumentId();
 
     /**
      * Vrátí skóre podobnosti mezi dokumentem a dotazem
@@ -32,7 +33,7 @@ public interface Result {
      *
      * @return skóre podobnosti mezi dokumentem a dotazem
      */
-    float getScore();
+    double getScore();
 
     /**
      * Pořadí mezi ostatními vrácenými dokumenty
@@ -40,7 +41,7 @@ public interface Result {
      *
      * @return pořadí mezi ostatními vrácenými dokumenty
      */
-    int getRank();
+    long getRank();
 
     /**
      * Metoda používaná pro generování výstupu pro vyhodnocovací skript.

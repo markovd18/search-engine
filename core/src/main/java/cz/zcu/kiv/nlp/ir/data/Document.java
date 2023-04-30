@@ -1,6 +1,6 @@
 package cz.zcu.kiv.nlp.ir.data;
 
-import java.util.Date;
+import cz.zcu.kiv.nlp.ir.index.Indexable;
 
 /**
  * Created by Tigi on 8.1.2015.
@@ -13,14 +13,7 @@ import java.util.Date;
  * stávajících metod neměnte.
  *
  */
-public interface Document {
-
-    /**
-     * Text dokumentu
-     * 
-     * @return text
-     */
-    String getText();
+public interface Document extends Indexable {
 
     /**
      * Unikátní id dokumentu
@@ -28,19 +21,5 @@ public interface Document {
      * @return id dokumentu
      */
     String getId();
-
-    /**
-     * Titulek dokumentu
-     * 
-     * @return titulek dokumentu
-     */
-    String getTitle();
-
-    /**
-     * Datum přidání dokumentu (tj. např. indexace nebo stažení nebo publikování
-     *
-     * @return datum vztažené k dokumentu
-     */
-    Date getDate();
 
 }

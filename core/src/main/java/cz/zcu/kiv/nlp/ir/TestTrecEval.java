@@ -1,6 +1,8 @@
 package cz.zcu.kiv.nlp.ir;
 
 import cz.zcu.kiv.nlp.ir.data.*;
+import cz.zcu.kiv.nlp.ir.index.Index;
+import cz.zcu.kiv.nlp.ir.index.TfIdfIndex;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,7 @@ public class TestTrecEval {
     public static void main(String args[]) throws IOException {
 
         // TODO zde vytvořte objekt vaší implementované třídy Index
-        Index index = new Index();
+        Index index = new TfIdfIndex(null);
 
         Collection<Topic> topics = SerializedDataHelper.loadData(new File(OUTPUT_DIR + "/topicData.bin"), Topic.class);
 
@@ -69,10 +71,10 @@ public class TestTrecEval {
             // kombinace např. pokud budete vyhledávat jen pomocí title (t.getTitle()) nebo
             // jen pomocí description (t.getDescription())
             // nebo jejich kombinací (t.getTitle() + " " + t.getDescription())
-            List<Result> resultHits = index.search(t.getTitle() + " " + t.getDescription());
+            List<QueryResult> resultHits = index.search(t.getTitle() + " " + t.getDescription());
 
-            Comparator<Result> cmp = new Comparator<Result>() {
-                public int compare(Result o1, Result o2) {
+            Comparator<QueryResult> cmp = new Comparator<QueryResult>() {
+                public int compare(QueryResult o1, QueryResult o2) {
                     if (o1.getScore() > o2.getScore())
                         return -1;
                     if (o1.getScore() == o2.getScore())
@@ -82,7 +84,7 @@ public class TestTrecEval {
             };
 
             Collections.sort(resultHits, cmp);
-            for (Result r : resultHits) {
+            for (QueryResult r : resultHits) {
                 final String line = r.toString(t.getId());
                 lines.add(line);
             }
