@@ -1,6 +1,10 @@
 {
   "folders": [
     {
+      "path": "./",
+      "name": "root",
+    },
+    {
       "path": "core",
       "name": "Core"
     },
@@ -12,14 +16,44 @@
       "path": "utils",
       "name": "Utils"
     },
-    {
-      "path": "./",
-      "name": "root"
-    }
   ],
   "settings": {
     "java.compile.nullAnalysis.mode": "automatic",
     "java.format.settings.url": "java-formatter.xml",
     "java.configuration.updateBuildConfiguration": "interactive",
+
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Clean",
+        "type": "shell",
+        "command": "mvn clean",
+        "presentation": {
+          "reveal": "always",
+        },
+        "group": "build",
+      },
+      {
+        "label": "Compile",
+        "command": "mvn clean compile",
+        "type": "shell",
+        "args": [],
+        "presentation": {
+          "reveal": "always"
+        },
+        "group": "build"
+      },
+      {
+        "label": "Package",
+        "type": "shell",
+        "command": "mvn clean package",
+        "presentation": {
+          "reveal": "always",
+        },
+        "group": "build",
+      }
+    ]
   }
 }

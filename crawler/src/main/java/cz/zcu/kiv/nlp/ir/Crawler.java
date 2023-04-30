@@ -100,18 +100,24 @@ public class Crawler {
     }
 
     private Set<String> crawlUrlsFromWebsite() {
-        final var mainArticleUrls = downloader.getLinks(SITE,
-                "//section[@class='h-posts-section']//div[@class='h-posts-box']//article/a[starts-with(@href, '/')]/@href")
-                .stream()
-                .collect(Collectors.toSet());
+        logger.info("Crawling urls from {}...", SITE);
+        // final var mainArticleUrls = downloader.getLinks(SITE,
+        // "//section[@class='h-posts-section']//div[@class='h-posts-box']//article/a[starts-with(@href,
+        // '/')]/@href")
+        // .stream()
+        // .collect(Collectors.toSet());
 
         final var sideListArticleUrls = downloader.getLinks(SITE,
                 "//section[@class='h-posts-section']//ul[@class='h-posts-list']//li/h3/a[starts-with(@href, '/')]/@href")
                 .stream()
                 .collect(Collectors.toSet());
 
-        mainArticleUrls.addAll(sideListArticleUrls);
-        return mainArticleUrls;
+        final var allArticles = downloader.getLinks(SITE, "//article//a[starts-with(@href, '/')]/@href").stream()
+                .collect(Collectors.toSet());
+
+        allArticles.addAll(sideListArticleUrls);
+        logger.info("Found {} articles", allArticles.size());
+        return allArticles;
     }
 
     private List<String> processUrl(final String url, final int order, final int totalCount) {

@@ -55,8 +55,13 @@ public class UrlStorage {
   }
 
   public Set<String> loadUrls(final String path) {
+    final var urlsFile = createFile(path);
+    if (!urlsFile.exists() || urlsFile.isDirectory()) {
+      return Collections.emptySet();
+    }
+
     try {
-      return loader.loadFromFile(createFile(path));
+      return loader.loadFromFile(urlsFile);
     } catch (final IOException e) {
       logger.error("Error while loading urls from file", e);
       return Collections.emptySet();
