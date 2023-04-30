@@ -1,25 +1,27 @@
 package cz.zcu.kiv.nlp.ir.index;
 
-import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
+import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;;
 
 public class Verb {
 
   private final String term;
-  private final int documentFrequency;
+  private final VerbInfo verbInfo;
 
-  public Verb(final String term, final int termFrequency) {
-    checkNotNull(term, "Term");
+  public Verb(final String term, final VerbInfo verbInfo) {
+    checkNotBlank(term, "Term");
+    checkNotNull(verbInfo, "Verb info");
 
     this.term = term;
-    this.documentFrequency = termFrequency;
+    this.verbInfo = verbInfo;
   }
 
   public String getTerm() {
     return term;
   }
 
-  public int getDocumentFrequency() {
-    return documentFrequency;
+  public long getDocumentFrequency() {
+    return verbInfo.getDocumentFrequency();
   }
 
 }

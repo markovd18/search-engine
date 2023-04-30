@@ -45,15 +45,17 @@ public class TfIdfIndex implements Index {
     dictionary.clear();
     for (final var document : documentIndexes) {
       final var tokens = document.tokenize(preprocessor);
+      // TODO doplnit vazbu ze záznamu v Dictionary na ID dokumentu, aby bylo možné
+      // využít v Booleovském modelu
       // TODO zamyslet se a vyzkoumat, jestli do dictionary ukládat až normalizované
       // tokeny, nebo použít podobu před normalizací
-      dictionary.addRecords(tokens.stream().collect(Collectors.toSet()));
+      dictionary.addRecords(tokens.stream().collect(Collectors.toSet()), document.getId());
     }
 
-    final int documentCount = documentIndexes.size();
+    final long documentCount = documentIndexes.size();
     for (final var entry : dictionary.getRecords()) {
       final String term = entry.getTerm();
-      final int documentFrequency = entry.getDocumentFrequency();
+      final long documentFrequency = entry.getDocumentFrequency();
       final double idf = invertedDocumentFrequency(documentCount, documentFrequency);
       for (final var document : documentIndexes) {
         final double termFrequency = document.getTermWeight(term);
@@ -99,7 +101,7 @@ public class TfIdfIndex implements Index {
     queryDocument.tokenize(preprocessor);
     for (final var entry : dictionary.getRecords()) {
       final String term = entry.getTerm();
-      final int documentFrequency = entry.getDocumentFrequency();
+      final long documentFrequency = entry.getDocumentFrequency();
       final double idf = invertedDocumentFrequency(documents.size(), documentFrequency);
       final double termFrequency = queryDocument.getTermWeight(term);
       final double tfidf = tfIdfWeight(termFrequency, idf);
@@ -125,7 +127,7 @@ public class TfIdfIndex implements Index {
     return result;
   }
 
-  private double invertedDocumentFrequency(final int documentCount, final int termDocumentFrequency) {
+  private double invertedDocumentFrequency(final long documentCount, final long termDocumentFrequency) {
     if (termDocumentFrequency <= 0 || documentCount <= 0) {
       return 0;
     }
