@@ -45,10 +45,6 @@ public class TfIdfIndex implements Index {
     dictionary.clear();
     for (final var document : documentIndexes) {
       final var tokens = document.tokenize(preprocessor);
-      // TODO doplnit vazbu ze záznamu v Dictionary na ID dokumentu, aby bylo možné
-      // využít v Booleovském modelu
-      // TODO zamyslet se a vyzkoumat, jestli do dictionary ukládat až normalizované
-      // tokeny, nebo použít podobu před normalizací
       dictionary.addRecords(tokens.stream().collect(Collectors.toSet()), document.getId());
     }
 
