@@ -30,6 +30,24 @@ public class UrlStorage {
     this.basePath = path;
     this.loader = loader;
     this.logger = loggerFactory.getLogger(getClass().getName());
+    createStorageIfNotExists(path);
+  }
+
+  private void createStorageIfNotExists(final String path) {
+    var outputDir = new File(path);
+    if (outputDir.exists()) {
+      logger.info("Initiated storage from existing directory: '{}'", path);
+      return;
+    }
+
+    boolean mkdirs = outputDir.mkdirs();
+    if (mkdirs) {
+      logger.info("Output directory created: '{}'", outputDir);
+    } else {
+      logger.error(
+          "URL storage directory can't be created!\nOutput directory: '{}'",
+          outputDir);
+    }
   }
 
   public File createFile(final String name) {
@@ -37,8 +55,13 @@ public class UrlStorage {
   }
 
   public Set<String> loadUrls(final String path) {
+    final var urlsFile = createFile(path);
+    if (!urlsFile.exists() || urlsFile.isDirectory()) {
+      return Collections.emptySet();
+    }
+
     try {
-      return loader.loadFromFile(createFile(path));
+      return loader.loadFromFile(urlsFile);
     } catch (final IOException e) {
       logger.error("Error while loading urls from file", e);
       return Collections.emptySet();

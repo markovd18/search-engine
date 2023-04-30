@@ -10,10 +10,9 @@ import org.slf4j.LoggerFactory;
 import us.codecraft.xsoup.Xsoup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,36 +46,36 @@ public class HTMLDownloaderSelenium implements HTMLDownloader {
     /**
      * Downloads given url page and extracts xpath expressions.
      *
-     * @param url      page url
-     * @param xpathMap pairs of description and xpath expression
+     * @param url
+     *            page url
+     * @param xpathMap
+     *            pairs of description and xpath expression
      * @return pairs of descriptions and extracted values
      */
-    public Map<String, List<String>> processUrl(String url, Map<String, String> xpathMap) {
-        Map<String, List<String>> results = new HashMap<String, List<String>>();
-
-        log.info("Processing: " + url);
+    @Override
+    public List<String> processUrl(final String url, String xpath) {
+        log.info("Processing: {}", url);
         driver.get(url);
         String dom = driver.getPageSource();
-        if (dom != null) {
-            Document document = Jsoup.parse(dom);
-
-            for (String key : xpathMap.keySet()) {
-                ArrayList<String> list = new ArrayList<String>();
-                list.addAll(Xsoup.compile(xpathMap.get(key)).evaluate(document).list());
-                results.put(key, list);
-            }
-        } else {
+        if (dom == null) {
             log.info("Couldn't fetch the content of the page.");
             failedLinks.add(url);
+            return Collections.emptyList();
         }
-        return results;
+
+        Document document = Jsoup.parse(dom);
+        final var result = Xsoup.compile(xpath).evaluate(document).list();
+        log.info("Url processed.");
+        return result;
     }
 
     /**
      * Downloads given url page and extracts xpath expression.
      *
-     * @param url   page url
-     * @param xPath xpath expression
+     * @param url
+     *            page url
+     * @param xPath
+     *            xpath expression
      * @return list of extracted values
      */
     public List<String> getLinks(String url, String xPath) {

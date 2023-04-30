@@ -1,6 +1,7 @@
 package cz.zcu.kiv.nlp.ir.storage;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,6 +26,11 @@ public class InMemoryStorage<TDocument> implements Storage<TDocument> {
   @Override
   public boolean hasData() {
     return entries != null && entries.size() > 0;
+  }
+
+  @Override
+  public boolean saveEntry(final List<String> content) {
+    throw new UnsupportedOperationException("Unimplemented method 'saveEntry'");
   }
 
 }

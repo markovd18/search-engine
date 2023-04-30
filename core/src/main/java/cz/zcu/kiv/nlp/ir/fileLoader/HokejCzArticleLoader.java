@@ -21,7 +21,7 @@ public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
 
     String date = null;
     String author = null;
-    StringBuilder sb = new StringBuilder();
+    StringBuilder contentBuilder = new StringBuilder();
     for (final String line : lines) {
       if (date == null) {
         date = line.matches(datePattern) ? line : null;
@@ -33,7 +33,7 @@ public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
         continue;
       }
 
-      sb.append(line);
+      contentBuilder.append(line);
     }
 
     if (date == null) {
@@ -44,7 +44,7 @@ public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
       throw new IllegalArgumentException("Author of the article was not found");
     }
 
-    final String content = sb.toString();
+    final String content = contentBuilder.toString();
     return new HokejCzArticle(title, author, date, content);
   }
 

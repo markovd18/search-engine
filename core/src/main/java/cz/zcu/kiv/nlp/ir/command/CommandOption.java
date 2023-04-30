@@ -8,7 +8,9 @@ import cz.zcu.kiv.nlp.ir.article.HokejCzArticle;
 import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 import cz.zcu.kiv.nlp.ir.fileLoader.HokejCzArticleLoader;
 import cz.zcu.kiv.nlp.ir.storage.FSStorage;
+import cz.zcu.kiv.nlp.ir.storage.HokejCzArticleContentFormatter;
 import cz.zcu.kiv.nlp.ir.storage.InMemoryStorage;
+import cz.zcu.kiv.nlp.ir.storage.StorableContentFormatter;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 import cz.zcu.kiv.nlp.ir.storage.StorageType;
 
@@ -24,7 +26,9 @@ public enum CommandOption {
       Storage<HokejCzArticle> storage = null;
       if (storageType == StorageType.FILE_BASED) {
         final FileLoader<HokejCzArticle> fileLoader = new HokejCzArticleLoader();
-        storage = new FSStorage<HokejCzArticle>(FSStorage.DEFAULT_PATH, fileLoader, LoggerFactory.getILoggerFactory());
+        final StorableContentFormatter contentFormatter = new HokejCzArticleContentFormatter();
+        storage = new FSStorage<HokejCzArticle>(FSStorage.DEFAULT_PATH, fileLoader, contentFormatter,
+            LoggerFactory.getILoggerFactory());
       } else {
         storage = new InMemoryStorage<>(null);
       }
