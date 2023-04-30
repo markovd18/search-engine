@@ -7,18 +7,22 @@ import java.util.stream.Collectors;
 
 public class Dictionary {
 
-  private final Map<String, Integer> records = new HashMap<>();
+  private final Map<String, VerbInfo> records = new HashMap<>();
 
-  public void addRecord(final String token) {
-    final var documentFrequency = records.putIfAbsent(token, 1);
-    if (documentFrequency != null) {
-      records.put(token, documentFrequency + 1);
+  public void addRecord(final String token, final String documentId) {
+    final var verbInfo = records.containsKey(token) ? records.get(token) : new VerbInfo(token);
+    verbInfo.incrementDocumentFrequency();
+    verbInfo.addPosting(documentId);
+
+    if (!records.containsKey(token)) {
+      records.put(token, verbInfo);
     }
+
   }
 
-  public void addRecords(final Set<String> tokens) {
+  public void addRecords(final Set<String> tokens, final String documentId) {
     for (final var token : tokens) {
-      addRecord(token);
+      addRecord(token, documentId);
     }
   }
 
