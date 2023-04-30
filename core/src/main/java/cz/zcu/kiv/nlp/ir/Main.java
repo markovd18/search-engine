@@ -1,17 +1,36 @@
 package cz.zcu.kiv.nlp.ir;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.HelpFormatter;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cz.zcu.kiv.nlp.ir.article.Article;
 import cz.zcu.kiv.nlp.ir.command.CommandParser;
+import cz.zcu.kiv.nlp.ir.data.QueryResult;
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloader;
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloaderSelenium;
 import cz.zcu.kiv.nlp.ir.fileLoader.UrlFileLoader;
+import cz.zcu.kiv.nlp.ir.index.Index;
+import cz.zcu.kiv.nlp.ir.index.Indexable;
+import cz.zcu.kiv.nlp.ir.index.TfIdfIndex;
+import cz.zcu.kiv.nlp.ir.preprocess.DefaultPreprocessor;
+import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
+import cz.zcu.kiv.nlp.ir.preprocess.normalizer.DefaultNormalizer;
+import cz.zcu.kiv.nlp.ir.preprocess.normalizer.Normalizer;
+import cz.zcu.kiv.nlp.ir.preprocess.stemmer.CzechStemmerAgressive;
+import cz.zcu.kiv.nlp.ir.preprocess.stemmer.Stemmer;
+import cz.zcu.kiv.nlp.ir.preprocess.stopwords.DefaultStopwordsRemover;
+import cz.zcu.kiv.nlp.ir.preprocess.stopwords.StopwordsRemover;
+import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.DefaultTokenizer;
+import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.Tokenizer;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
-import cz.zcu.kiv.nlp.ir.tokenizer.DefaultTokenizer;
-import cz.zcu.kiv.nlp.ir.tokenizer.Tokenizer;
 
 public class Main {
 
@@ -27,27 +46,61 @@ public class Main {
       return;
     }
 
-    final Storage<? extends Article> storage = config.getStorage();
-    if (!storage.hasData()) {
-      final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL, storage);
-      crawler.crawl();
+    final Preprocessor preprocessor = createPreprocessor();
+    // TODO - pokud půjde dělat file-based, tak načíst z configu
+    final Index index = new TfIdfIndex(preprocessor);
+    if (!index.hasData()) {
+      final Storage<? extends Article> storage = config.getStorage();
+      if (!storage.hasData()) {
+        final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL, storage);
+        crawler.crawl();
+      }
+
+      final var documents = storage.getEntries()
+          .stream()
+          .map((entry) -> (Indexable) entry)
+          .toList();
+      index.index(documents);
     }
 
-    final Logger logger = LoggerFactory.getLogger(Main.class);
-    final Tokenizer tokenizer = new DefaultTokenizer(LoggerFactory.getILoggerFactory());
-    tokenizer.tokenize("Ahoj, světe.");
-    logger.info("Hello, world!");
-
-    logger.error("Error");
-    logger.warn("Warning");
-    logger.debug("Debug");
-    logger.trace("Not working");
+    // TODO run CLI
+    final var result = index.search("Druhá řada bude svým způsobem pardubická");
+    printResult(result, index);
   }
 
-  private static final Crawler createCrawler(final long politenessIntervalMillis,
+  private static Crawler createCrawler(final long politenessIntervalMillis,
       final Storage<? extends Article> storage) {
     final HTMLDownloader downloader = new HTMLDownloaderSelenium();
     final UrlStorage urlStorage = new UrlStorage("urls", new UrlFileLoader(), LoggerFactory.getILoggerFactory());
     return new Crawler(downloader, politenessIntervalMillis, urlStorage, storage);
+  }
+
+  private static Preprocessor createPreprocessor() {
+    final Tokenizer tokenizer = new DefaultTokenizer(LoggerFactory.getILoggerFactory());
+    final Stemmer stemmer = new CzechStemmerAgressive();
+    final Normalizer normalizer = new DefaultNormalizer();
+    final StopwordsRemover stopwordsRemover = new DefaultStopwordsRemover(loadStopwords());
+    return new DefaultPreprocessor(tokenizer, stemmer, normalizer, stopwordsRemover);
+  }
+
+  private static void printResult(final List<QueryResult> result, final Index index) {
+    for (final var queryResult : result) {
+      final var documentId = queryResult.getDocumentId();
+      final var document = index.getDocument(documentId)
+          .orElseThrow(() -> new IllegalStateException("Document not found."));
+
+      System.out.format("Document ID: %s, score: %.5f, title: %s...\n", document.getId(), queryResult.getScore(),
+          document.getTitle().subSequence(0, Math.min(50, document.getTitle().length())));
+    }
+  }
+
+  private static Set<String> loadStopwords() {
+    try {
+      return FileUtils.readLines(new FileInputStream(new File("stopwords.txt"))).stream()
+          .collect(Collectors.toSet());
+    } catch (IOException e) {
+      System.err.println("File not found: stopwords.txt\n" + e.getMessage());
+      return Collections.emptySet();
+    }
   }
 }

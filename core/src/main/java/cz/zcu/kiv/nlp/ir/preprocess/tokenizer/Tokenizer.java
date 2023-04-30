@@ -1,4 +1,4 @@
-package cz.zcu.kiv.nlp.ir.tokenizer;
+package cz.zcu.kiv.nlp.ir.preprocess.tokenizer;
 
 import java.util.List;
 

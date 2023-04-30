@@ -1,13 +1,8 @@
 package cz.zcu.kiv.nlp.ir.article;
 
-public interface Article {
+import cz.zcu.kiv.nlp.ir.index.Indexable;
 
-  String getTitle();
-
-  String getDate();
-
-  String getAuthor();
+public interface Article extends Indexable {
 
   String getContent();
-
 }
