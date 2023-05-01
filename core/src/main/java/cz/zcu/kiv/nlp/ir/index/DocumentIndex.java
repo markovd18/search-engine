@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import cz.zcu.kiv.nlp.ir.data.Document;
@@ -14,7 +13,9 @@ import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
 
 public class DocumentIndex implements Document {
 
-  private final UUID id = UUID.randomUUID();
+  private static long nextId = 1;
+
+  private final long id;
   private final Map<String, Double> termWeights = new HashMap<>();
 
   private final String title;
@@ -23,6 +24,7 @@ public class DocumentIndex implements Document {
   private final String text;
 
   public DocumentIndex(final String title, final String author, final String date, final String text) {
+    this.id = nextId++;
     this.title = title;
     this.author = author;
     this.date = date;
@@ -77,8 +79,8 @@ public class DocumentIndex implements Document {
   }
 
   @Override
-  public String getId() {
-    return id.toString();
+  public long getId() {
+    return id;
   }
 
   @Override

@@ -25,7 +25,7 @@ public class TfIdfIndex implements Index {
 
   private final Preprocessor preprocessor;
   private Dictionary dictionary = new Dictionary();
-  private Map<String, DocumentIndex> documents = new HashMap<>();
+  private Map<Long, DocumentIndex> documents = new HashMap<>();
 
   public TfIdfIndex(final Preprocessor preprocessor) {
     checkNotNull(preprocessor, "Preprocessor");
@@ -80,7 +80,7 @@ public class TfIdfIndex implements Index {
   }
 
   @Override
-  public Optional<Document> getDocument(final String id) {
+  public Optional<Document> getDocument(final long id) {
     ValidationUtils.checkNotNull(id, "Document ID");
     return Optional.ofNullable(documents.get(id));
   }

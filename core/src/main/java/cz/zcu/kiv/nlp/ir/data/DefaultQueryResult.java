@@ -1,7 +1,5 @@
 package cz.zcu.kiv.nlp.ir.data;
 
-import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
-
 /**
  * Created by Tigi on 6.1.2015.**Třída{@link DefaultQueryResult} implementuje
  * rozhraní {@link QueryResult}
@@ -27,18 +25,18 @@ import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
  */
 public class DefaultQueryResult implements QueryResult, Comparable<QueryResult> {
 
-    private final String documentId;
+    private final long documentId;
     private long rank = 0;
     private final double score;
 
-    public DefaultQueryResult(final String documentId, final double score) {
-        checkNotBlank(documentId, "Document ID");
+    public DefaultQueryResult(final long documentId, final double score) {
+        // checkNotBlank(documentId, "Document ID");
         this.documentId = documentId;
         this.score = score;
     }
 
     @Override
-    public String getDocumentId() {
+    public long getDocumentId() {
         return documentId;
     }
 

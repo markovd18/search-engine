@@ -9,7 +9,7 @@ public class Dictionary {
 
   private final Map<String, VerbInfo> records = new HashMap<>();
 
-  public void addRecord(final String token, final String documentId) {
+  public void addRecord(final String token, final long documentId) {
     final var verbInfo = records.containsKey(token) ? records.get(token) : new VerbInfo(token);
     verbInfo.incrementDocumentFrequency();
     verbInfo.addPosting(documentId);
@@ -20,7 +20,7 @@ public class Dictionary {
 
   }
 
-  public void addRecords(final Set<String> tokens, final String documentId) {
+  public void addRecords(final Set<String> tokens, final long documentId) {
     for (final var token : tokens) {
       addRecord(token, documentId);
     }

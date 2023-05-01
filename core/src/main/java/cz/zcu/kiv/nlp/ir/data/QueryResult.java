@@ -25,7 +25,7 @@ public interface QueryResult {
      * 
      * @return id dokumentu
      */
-    String getDocumentId();
+    long getDocumentId();
 
     /**
      * Vrátí skóre podobnosti mezi dokumentem a dotazem

@@ -28,5 +28,5 @@ public interface Index {
 
     boolean hasData();
 
-    Optional<Document> getDocument(String id);
+    Optional<Document> getDocument(long id);
 }

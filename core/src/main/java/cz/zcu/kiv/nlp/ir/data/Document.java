@@ -20,6 +20,6 @@ public interface Document extends Indexable {
      * 
      * @return id dokumentu
      */
-    String getId();
+    long getId();
 
 }
