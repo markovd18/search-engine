@@ -3,6 +3,7 @@ package cz.zcu.kiv.nlp.ir;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,9 @@ import cz.zcu.kiv.nlp.ir.preprocess.stopwords.StopwordsRemover;
 import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.DefaultTokenizer;
 import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.Tokenizer;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
+import cz.zcu.kiv.nlp.ir.userInterafce.CommandLineInterface;
+import cz.zcu.kiv.nlp.ir.userInterafce.UserCommand;
+import cz.zcu.kiv.nlp.ir.userInterafce.UserInput;
 
 public class Main {
 
@@ -42,12 +46,15 @@ public class Main {
 
     if (config.isJustPrintHelp()) {
       final var formatter = new HelpFormatter();
-      formatter.printHelp("search-engine [-s STORAGE] [-m MODEL] [-i INDEX]", parser.getOptions());
+      try (final var writer = new PrintWriter(System.out)) {
+        formatter.printUsage(writer, 100, "Search Engine", parser.getOptions());
+        formatter.printOptions(writer, 100, parser.getOptions(), 10, 10);
+      }
+
       return;
     }
 
     final Preprocessor preprocessor = createPreprocessor();
-    // TODO - pokud půjde dělat file-based, tak načíst z configu
     final Index index = new TfIdfIndex(preprocessor);
     if (!index.hasData()) {
       final Storage<? extends Article> storage = config.getStorage();
@@ -63,9 +70,32 @@ public class Main {
       index.index(documents);
     }
 
-    // TODO run CLI
-    final var result = index.search("Druhá řada bude svým způsobem pardubická");
-    printResult(result, index);
+    final var testResult = index.search("Druhá řada bude svým způsobem pardubická");
+    printResult(testResult, index);
+
+    try (final CommandLineInterface userInterface = new CommandLineInterface(System.in, System.out)) {
+      var input = UserInput.pass();
+      while (input.getCommand() != UserCommand.EXIT) {
+        input = userInterface.awaitInput();
+        final var command = input.getCommand();
+        if (command == UserCommand.QUERY) {
+          handleQueryCommand(input, index);
+          continue;
+        }
+
+        if (command == UserCommand.URL) {
+          handleUrlCommand(input);
+          continue;
+        }
+
+        if (command == UserCommand.CLEAR) {
+          handleClearCommand();
+          continue;
+        }
+
+        // TODO URL and (?INDEX?)
+      }
+    }
   }
 
   private static Crawler createCrawler(final long politenessIntervalMillis,
@@ -84,6 +114,7 @@ public class Main {
   }
 
   private static void printResult(final List<QueryResult> result, final Index index) {
+    System.out.printf("Found %d documents.\n", result.size());
     for (final var queryResult : result) {
       final var documentId = queryResult.getDocumentId();
       final var document = index.getDocument(documentId)
@@ -102,5 +133,24 @@ public class Main {
       System.err.println("File not found: stopwords.txt\n" + e.getMessage());
       return Collections.emptySet();
     }
+  }
+
+  private static void handleQueryCommand(final UserInput input, final Index index) {
+    final var query = input.getCommandArgument()
+        .orElseThrow(() -> new IllegalStateException("No query provided"));
+    final var model = input.getOptionValue()
+        .orElseThrow(() -> new IllegalStateException("No query model provided"));
+    final var result = index.search(query); // TODO model as parameter
+    printResult(result, index);
+  }
+
+  private static void handleUrlCommand(final UserInput input) {
+    final var url = input.getCommandArgument().orElseThrow(() -> new IllegalStateException("No URL provided"));
+    System.out.printf("Indexing URL %s...\n", url);
+  }
+
+  private static void handleClearCommand() {
+    System.out.print("\033[H\033[2J");
+    System.out.flush();
   }
 }
