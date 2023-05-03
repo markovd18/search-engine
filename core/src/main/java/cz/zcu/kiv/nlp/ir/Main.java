@@ -21,6 +21,8 @@ import cz.zcu.kiv.nlp.ir.fileLoader.UrlFileLoader;
 import cz.zcu.kiv.nlp.ir.index.Index;
 import cz.zcu.kiv.nlp.ir.index.Indexable;
 import cz.zcu.kiv.nlp.ir.index.TfIdfIndex;
+import cz.zcu.kiv.nlp.ir.index.query.QueryParser;
+import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
 import cz.zcu.kiv.nlp.ir.preprocess.DefaultPreprocessor;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
 import cz.zcu.kiv.nlp.ir.preprocess.normalizer.DefaultNormalizer;
@@ -41,6 +43,9 @@ public class Main {
   private static final long DEFAULT_CRAWLER_POLITENESS_INTERVAL = 1200;
 
   public static void main(final String[] args) {
+    QueryParser queryParser = new QueryParser();
+    final var parsed = queryParser.parse("Praha");
+
     final var parser = new CommandParser(LoggerFactory.getILoggerFactory());
     final var config = parser.parse(args);
 
@@ -139,8 +144,9 @@ public class Main {
     final var query = input.getCommandArgument()
         .orElseThrow(() -> new IllegalStateException("No query provided"));
     final var model = input.getOptionValue()
+        .map((option) -> SearchModel.valueOf(option.toUpperCase()))
         .orElseThrow(() -> new IllegalStateException("No query model provided"));
-    final var result = index.search(query); // TODO model as parameter
+    final var result = index.search(query, model); // TODO model as parameter
     printResult(result, index);
   }
 

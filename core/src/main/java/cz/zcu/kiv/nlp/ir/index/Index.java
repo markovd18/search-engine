@@ -2,6 +2,7 @@ package cz.zcu.kiv.nlp.ir.index;
 
 import cz.zcu.kiv.nlp.ir.data.Document;
 import cz.zcu.kiv.nlp.ir.data.QueryResult;
+import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,8 @@ public interface Index {
     void index(List<Indexable> documents);
 
     List<QueryResult> search(String query);
+
+    List<QueryResult> search(String query, SearchModel searchModel);
 
     boolean hasData();
 
