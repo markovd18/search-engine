@@ -27,13 +27,16 @@ public class TfIdfIndex implements Index {
   private static final SearchModel DEFAULT_SEARCH_MODEL = SearchModel.VECTOR;
 
   private final Preprocessor preprocessor;
-  private final QueryParser queryParser = new QueryParser(); // TODO interface and DI
+  private final QueryParser queryParser;
+
   private Dictionary dictionary = new Dictionary();
   private Map<Long, DocumentIndex> documents = new HashMap<>();
 
-  public TfIdfIndex(final Preprocessor preprocessor) {
+  public TfIdfIndex(final Preprocessor preprocessor, final QueryParser queryParser) {
     checkNotNull(preprocessor, "Preprocessor");
+    checkNotNull(queryParser, "Query Parser");
     this.preprocessor = preprocessor;
+    this.queryParser = queryParser;
   }
 
   @Override

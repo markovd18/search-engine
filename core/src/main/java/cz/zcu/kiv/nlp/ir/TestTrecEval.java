@@ -40,7 +40,7 @@ public class TestTrecEval {
     public static void main(String args[]) throws IOException {
 
         // TODO zde vytvořte objekt vaší implementované třídy Index
-        Index index = new TfIdfIndex(null);
+        Index index = new TfIdfIndex(null, null);
 
         Collection<Topic> topics = SerializedDataHelper.loadData(new File(OUTPUT_DIR + "/topicData.bin"), Topic.class);
 
