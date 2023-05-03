@@ -120,7 +120,7 @@ public class TfIdfIndex implements Index {
       queryResult = queue.poll();
     }
 
-    return result;
+    return result.stream().filter(document -> document.getScore() > 0).collect(Collectors.toList());
   }
 
   private double invertedDocumentFrequency(final long documentCount, final long termDocumentFrequency) {

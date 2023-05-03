@@ -4,7 +4,11 @@ import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Scanner;
+
+import cz.zcu.kiv.nlp.ir.Links;
 
 public class CommandLineInterface implements AutoCloseable {
 
@@ -36,6 +40,10 @@ public class CommandLineInterface implements AutoCloseable {
         return UserInput.pass();
       }
 
+      if (input.equals("clear")) {
+        return UserInput.clear();
+      }
+
       final var command = input;
       outputStream.printf("Please provide an argument for command '%s' delimited by space.\n", command);
       return UserInput.pass();
@@ -44,6 +52,14 @@ public class CommandLineInterface implements AutoCloseable {
     final var command = input.substring(0, spaceIndex);
     if (command.equals("query")) {
       return parseQueryCommandInput(input, spaceIndex);
+    }
+
+    if (command.equals("url")) {
+      return parseUrlCommandInput(input, spaceIndex);
+    }
+
+    if (command.equals("clear")) {
+      return UserInput.clear();
     }
 
     return UserInput.pass();
@@ -75,6 +91,19 @@ public class CommandLineInterface implements AutoCloseable {
 
     final var query = input.substring(startIndex, optionIndex).trim();
     return new UserInput(UserCommand.QUERY, query, model);
+  }
+
+  private UserInput parseUrlCommandInput(final String input, final int startIndex) {
+    final var url = input.substring(startIndex, input.length()).trim();
+    final var urlWithProtocol = Links.prependHttpsIfNeeded(url);
+    try {
+      new URL(urlWithProtocol);
+    } catch (final MalformedURLException e) {
+      outputStream.println("Invalid URL. Please provide a valid URL.");
+      return UserInput.pass();
+    }
+
+    return new UserInput(UserCommand.URL, urlWithProtocol, null);
   }
 
   @Override

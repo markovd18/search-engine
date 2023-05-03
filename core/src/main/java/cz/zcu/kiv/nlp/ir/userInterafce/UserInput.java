@@ -42,4 +42,8 @@ public class UserInput {
     return new UserInput(UserCommand.EXIT);
   }
 
+  public static UserInput clear() {
+    return new UserInput(UserCommand.CLEAR);
+  }
+
 }

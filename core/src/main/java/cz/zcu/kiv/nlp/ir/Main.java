@@ -74,15 +74,26 @@ public class Main {
     printResult(testResult, index);
 
     try (final CommandLineInterface userInterface = new CommandLineInterface(System.in, System.out)) {
-      var input = userInterface.awaitInput();
+      var input = UserInput.pass();
       while (input.getCommand() != UserCommand.EXIT) {
+        input = userInterface.awaitInput();
         final var command = input.getCommand();
         if (command == UserCommand.QUERY) {
           handleQueryCommand(input, index);
+          continue;
+        }
+
+        if (command == UserCommand.URL) {
+          handleUrlCommand(input);
+          continue;
+        }
+
+        if (command == UserCommand.CLEAR) {
+          handleClearCommand();
+          continue;
         }
 
         // TODO URL and (?INDEX?)
-        input = userInterface.awaitInput();
       }
     }
   }
@@ -103,6 +114,7 @@ public class Main {
   }
 
   private static void printResult(final List<QueryResult> result, final Index index) {
+    System.out.printf("Found %d documents.\n", result.size());
     for (final var queryResult : result) {
       final var documentId = queryResult.getDocumentId();
       final var document = index.getDocument(documentId)
@@ -130,5 +142,15 @@ public class Main {
         .orElseThrow(() -> new IllegalStateException("No query model provided"));
     final var result = index.search(query); // TODO model as parameter
     printResult(result, index);
+  }
+
+  private static void handleUrlCommand(final UserInput input) {
+    final var url = input.getCommandArgument().orElseThrow(() -> new IllegalStateException("No URL provided"));
+    System.out.printf("Indexing URL %s...\n", url);
+  }
+
+  private static void handleClearCommand() {
+    System.out.print("\033[H\033[2J");
+    System.out.flush();
   }
 }
