@@ -17,19 +17,26 @@ import cz.zcu.kiv.nlp.ir.ValidationUtils;
 import cz.zcu.kiv.nlp.ir.data.DefaultQueryResult;
 import cz.zcu.kiv.nlp.ir.data.Document;
 import cz.zcu.kiv.nlp.ir.data.QueryResult;
+import cz.zcu.kiv.nlp.ir.index.query.QueryParser;
+import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
 
 public class TfIdfIndex implements Index {
 
   private static final long DEFAULT_QUERY_SIZE = 10;
+  private static final SearchModel DEFAULT_SEARCH_MODEL = SearchModel.VECTOR;
 
   private final Preprocessor preprocessor;
+  private final QueryParser queryParser;
+
   private Dictionary dictionary = new Dictionary();
   private Map<Long, DocumentIndex> documents = new HashMap<>();
 
-  public TfIdfIndex(final Preprocessor preprocessor) {
+  public TfIdfIndex(final Preprocessor preprocessor, final QueryParser queryParser) {
     checkNotNull(preprocessor, "Preprocessor");
+    checkNotNull(queryParser, "Query Parser");
     this.preprocessor = preprocessor;
+    this.queryParser = queryParser;
   }
 
   @Override
@@ -71,7 +78,12 @@ public class TfIdfIndex implements Index {
 
   @Override
   public List<QueryResult> search(final String query) {
-    return queryNDocuments(query, DEFAULT_QUERY_SIZE);
+    return queryNDocuments(query, DEFAULT_SEARCH_MODEL, DEFAULT_QUERY_SIZE);
+  }
+
+  @Override
+  public List<QueryResult> search(final String query, SearchModel searchModel) {
+    return queryNDocuments(query, searchModel, DEFAULT_QUERY_SIZE);
   }
 
   @Override
@@ -85,14 +97,26 @@ public class TfIdfIndex implements Index {
     return Optional.ofNullable(documents.get(id));
   }
 
-  public List<QueryResult> queryNDocuments(final String queryString, final long n) {
+  public List<QueryResult> queryNDocuments(final String queryString, final SearchModel searchModel, final long n) {
     checkNotNull(queryString, "Query");
     System.out.format("Querrying '%s'...\n", queryString);
     if (documents == null || documents.isEmpty()) {
       return Collections.emptyList();
     }
 
-    // TODO query parsing and handling - may be Boolean model or vector model search
+    if (searchModel == SearchModel.BOOLEAN) {
+      // TODO
+      System.out.println("Using boolean search model.");
+      final var query = queryParser.parse(queryString);
+      if (query == null || query.isInvalid()) {
+        System.out.println("Invalid query.");
+        return Collections.emptyList();
+      }
+
+      return Collections.emptyList();
+    }
+
+    System.out.println("Using vector search model.");
     final var queryDocument = new DocumentIndex(queryString);
     queryDocument.tokenize(preprocessor);
     for (final var entry : dictionary.getRecords()) {
