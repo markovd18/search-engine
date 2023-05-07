@@ -2,6 +2,7 @@ package cz.zcu.kiv.nlp.ir.index;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,5 +36,9 @@ public class Dictionary {
 
   public void clear() {
     records.clear();
+  }
+
+  public Optional<VerbInfo> getVerbInfo(final String token) {
+    return Optional.ofNullable(records.getOrDefault(token, null));
   }
 }

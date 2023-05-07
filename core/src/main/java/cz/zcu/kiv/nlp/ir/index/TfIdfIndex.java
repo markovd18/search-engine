@@ -3,8 +3,10 @@ package cz.zcu.kiv.nlp.ir.index;
 import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,10 +15,15 @@ import java.util.Queue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import cz.zcu.kiv.nlp.ir.ValidationUtils;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.BooleanClause.Occur;
+
 import cz.zcu.kiv.nlp.ir.data.DefaultQueryResult;
 import cz.zcu.kiv.nlp.ir.data.Document;
 import cz.zcu.kiv.nlp.ir.data.QueryResult;
+import cz.zcu.kiv.nlp.ir.index.query.Query;
 import cz.zcu.kiv.nlp.ir.index.query.QueryParser;
 import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
@@ -93,8 +100,8 @@ public class TfIdfIndex implements Index {
 
   @Override
   public Optional<Document> getDocument(final long id) {
-    ValidationUtils.checkNotNull(id, "Document ID");
-    return Optional.ofNullable(documents.get(id));
+    checkNotNull(id, "Document ID");
+    return Optional.ofNullable(documents.getOrDefault(id, null));
   }
 
   public List<QueryResult> queryNDocuments(final String queryString, final SearchModel searchModel, final long n) {
@@ -105,20 +112,20 @@ public class TfIdfIndex implements Index {
     }
 
     if (searchModel == SearchModel.BOOLEAN) {
-      // TODO
-      System.out.println("Using boolean search model.");
-      final var query = queryParser.parse(queryString);
-      if (query == null || query.isInvalid()) {
-        System.out.println("Invalid query.");
-        return Collections.emptyList();
-      }
-
-      return Collections.emptyList();
+      return evaluateBooleanModelQuery(queryString, n);
     }
 
-    System.out.println("Using vector search model.");
-    final var queryDocument = new DocumentIndex(queryString);
+    return evaluateVectorModelQuery(queryString, n);
+  }
+
+  private DocumentIndex createQueryDocument(final String rawQueryString) {
+    final var queryDocument = new DocumentIndex(rawQueryString);
     queryDocument.tokenize(preprocessor);
+    calculateQueryWeights(queryDocument);
+    return queryDocument;
+  }
+
+  private void calculateQueryWeights(final DocumentIndex queryDocument) {
     for (final var entry : dictionary.getRecords()) {
       final String term = entry.getTerm();
       final long documentFrequency = entry.getDocumentFrequency();
@@ -129,22 +136,6 @@ public class TfIdfIndex implements Index {
     }
 
     normalizeDocumentWeights(queryDocument);
-
-    final Queue<DefaultQueryResult> queue = new PriorityQueue<>();
-    for (final var document : documents.values()) {
-      final double cosineSimiliarity = normalizedCosineSimiliarity(document, queryDocument);
-      queue.add(new DefaultQueryResult(document.getId(), cosineSimiliarity));
-    }
-
-    final List<QueryResult> result = new ArrayList<>();
-    var queryResult = queue.poll();
-    while (result.size() != n && queryResult != null) {
-      queryResult.setRank(result.size() + 1);
-      result.add(queryResult);
-      queryResult = queue.poll();
-    }
-
-    return result.stream().filter(document -> document.getScore() > 0).collect(Collectors.toList());
   }
 
   private double invertedDocumentFrequency(final long documentCount, final long termDocumentFrequency) {
@@ -182,12 +173,151 @@ public class TfIdfIndex implements Index {
 
   private double normalizedCosineSimiliarity(final DocumentIndex first, final DocumentIndex second) {
     double similiarity = 0;
-    for (final var entry : dictionary.getRecords()) {
+    for (final var entry : first.getTermWeights()) {
       final String term = entry.getTerm();
-      similiarity += first.getTermWeight(term) * second.getTermWeight(term);
+      similiarity += entry.getWeight() * second.getTermWeight(term);
     }
 
     return similiarity;
   }
 
+  private <T> Queue<DefaultQueryResult> mapToResultQueue(final Collection<T> collection,
+      final Function<T, DefaultQueryResult> function) {
+    return collection.stream()
+        .map(function)
+        .filter((result) -> result.getScore() > 0.0001)
+        .collect(Collectors.toCollection(PriorityQueue::new));
+
+  }
+
+  private List<QueryResult> resultQueueToListOfN(final Queue<DefaultQueryResult> queue, final long n) {
+    final List<QueryResult> result = new ArrayList<>();
+    var queryResult = queue.poll();
+    while (result.size() != n && queryResult != null) {
+      queryResult.setRank(result.size() + 1);
+      result.add(queryResult);
+      queryResult = queue.poll();
+    }
+
+    return result;
+  }
+
+  private List<QueryResult> evaluateBooleanModelQuery(final String queryString, final long resultSize) {
+    System.out.println("Using boolean search model.");
+    final var query = queryParser.parse(queryString);
+    if (query == null || query.isInvalid()) {
+      System.out.println("Invalid query.");
+      return Collections.emptyList();
+    }
+
+    if (query.isTermQuery()) {
+      return evaluateBooleanTermQuery(query, resultSize);
+    }
+
+    return evaluateBooleanQuery(query, resultSize);
+  }
+
+  private List<QueryResult> evaluateBooleanQuery(final Query query, final long resultSize) {
+    final var booleanQuery = query.getBooleanQuery()
+        .orElseThrow(() -> new IllegalStateException("Boolean query is missing."));
+
+    final var clauses = booleanQuery.clauses();
+    if (clauses.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Collection<Long> result = null;
+    // intentionaly using a queue over a stack since we need to process clauses in
+    // order
+    final Queue<BooleanClause> queue = new LinkedList<>();
+    for (final var clause : clauses) {
+      queue.add(clause);
+    }
+
+    while (!queue.isEmpty()) {
+      final var clause = queue.poll();
+      if (clause.getQuery() instanceof TermQuery termQuery) {
+        final var postings = getPostings(termQuery.toString());
+        if (result == null) {
+          result = new ArrayList<>(postings);
+          continue;
+        }
+
+        intersectPostings(result, postings, clause.getOccur());
+        continue;
+      }
+
+      if (clause.getQuery() instanceof BooleanQuery subQuery) {
+        for (final var subCaluse : booleanQuery.clauses()) {
+          queue.add(subCaluse);
+        }
+      }
+
+      throw new IllegalStateException(
+          "Unknown operation for query type {}".formatted(clause.getQuery().getClass().getName()));
+    }
+
+    final String rawQueryString = query.tokenizeAndConcat();
+    final var queryDocument = createQueryDocument(rawQueryString);
+    final var resultQueue = mapToResultQueue(result, (posting) -> {
+      final var document = documents.get(posting);
+      final double score = normalizedCosineSimiliarity(document, queryDocument);
+      return new DefaultQueryResult(posting, score);
+    });
+
+    return resultQueueToListOfN(resultQueue, resultSize);
+  }
+
+  private List<QueryResult> evaluateBooleanTermQuery(final Query query, final long resultSize) {
+    final var rawQuery = query.getTermQuery()
+        .orElseThrow(() -> new IllegalStateException("Term query is missing."));
+
+    System.out.println(rawQuery.toString());
+    final var verbInfo = dictionary.getVerbInfo(rawQuery.toString());
+    if (verbInfo.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final var entry = verbInfo.get();
+    final var postings = entry.getPostings();
+    final var queue = mapToResultQueue(postings, (posting) -> {
+      final var document = documents.get(posting);
+      return new DefaultQueryResult(posting, document.getTermWeight(entry.getTerm()));
+    });
+
+    return resultQueueToListOfN(queue, resultSize);
+  }
+
+  private void intersectPostings(final Collection<Long> left, final Collection<Long> right, final Occur occur) {
+    switch (occur) {
+      case SHOULD:
+        left.addAll(right);
+        break;
+      case MUST:
+        left.retainAll(right);
+        break;
+      case MUST_NOT:
+        left.removeAll(right);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown operation for occur {}".formatted(occur));
+    }
+  }
+
+  private List<QueryResult> evaluateVectorModelQuery(final String queryString, final long resultSize) {
+    System.out.println("Using vector search model.");
+    final var queryDocument = createQueryDocument(queryString);
+    final var queue = mapToResultQueue(documents.values(), (document) -> {
+      final double cosineSimiliarity = normalizedCosineSimiliarity(document, queryDocument);
+      return new DefaultQueryResult(document.getId(), cosineSimiliarity);
+    });
+
+    return resultQueueToListOfN(queue, resultSize);
+  }
+
+  private Collection<Long> getPostings(final String term) {
+    return dictionary.getVerbInfo(term)
+        .map(info -> info.getPostings())
+        .orElse(Collections.emptyList());
+  }
 }
