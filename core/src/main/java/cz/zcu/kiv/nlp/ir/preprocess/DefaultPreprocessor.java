@@ -31,7 +31,7 @@ public class DefaultPreprocessor implements Preprocessor {
 
   @Override
   public List<String> preprocess(final String text) {
-    final var tokens = tokenizer.tokenize(text);
+    final var tokens = tokenizer.tokenize(text.toLowerCase());
     return tokens.stream()
         .filter((token) -> !stopwordsRemover.isStopword(token))
         .map((token) -> normalizer.removeAccents(stemmer.stem(token)))

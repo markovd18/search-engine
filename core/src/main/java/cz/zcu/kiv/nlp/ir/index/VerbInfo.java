@@ -2,6 +2,8 @@ package cz.zcu.kiv.nlp.ir.index;
 
 import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -29,5 +31,9 @@ public class VerbInfo {
 
   public void incrementDocumentFrequency() {
     documentFrequency++;
+  }
+
+  public Collection<Long> getPostings() {
+    return Collections.unmodifiableCollection(postingsList);
   }
 }

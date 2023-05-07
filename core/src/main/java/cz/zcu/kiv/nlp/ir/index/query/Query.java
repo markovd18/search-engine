@@ -1,7 +1,10 @@
 package cz.zcu.kiv.nlp.ir.index.query;
 
+import java.util.LinkedList;
 import java.util.Optional;
+import java.util.Queue;
 
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 
@@ -45,5 +48,46 @@ public class Query {
 
   public boolean isInvalid() {
     return booleanQuery == null && termQuery == null;
+  }
+
+  public String tokenizeAndConcat() {
+    if (isInvalid()) {
+      return "";
+    }
+
+    if (isTermQuery()) {
+      return termQuery.getTerm().text();
+    }
+
+    final var clauses = booleanQuery.clauses();
+    if (clauses.isEmpty()) {
+      return "";
+    }
+
+    final StringBuilder stringBuilder = new StringBuilder();
+    final Queue<BooleanClause> stack = new LinkedList<>();
+    for (final var clause : booleanQuery.clauses()) {
+      stack.add(clause);
+    }
+
+    while (!stack.isEmpty()) {
+      final var clause = stack.poll();
+      if (clause.getQuery() instanceof TermQuery termQuery) {
+        stringBuilder.append(termQuery.getTerm().text() + " ");
+        continue;
+      }
+
+      if (clause.getQuery() instanceof BooleanQuery booleanQuery) {
+        for (final var subClause : booleanQuery.clauses()) {
+          stack.add(subClause);
+        }
+        continue;
+      }
+
+      throw new IllegalStateException(
+          "Unknown operation got query type {}".formatted(clause.getQuery().getClass().getName()));
+    }
+
+    return stringBuilder.toString().trim();
   }
 }

@@ -1,14 +1,7 @@
 package cz.zcu.kiv.nlp.ir;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.cli.HelpFormatter;
 import org.slf4j.LoggerFactory;
 
@@ -17,22 +10,14 @@ import cz.zcu.kiv.nlp.ir.command.CommandParser;
 import cz.zcu.kiv.nlp.ir.data.QueryResult;
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloader;
 import cz.zcu.kiv.nlp.ir.downloader.HTMLDownloaderSelenium;
+import cz.zcu.kiv.nlp.ir.factory.DefaultFactory;
+import cz.zcu.kiv.nlp.ir.factory.Factory;
+import cz.zcu.kiv.nlp.ir.factory.PreprocessorType;
 import cz.zcu.kiv.nlp.ir.fileLoader.UrlFileLoader;
 import cz.zcu.kiv.nlp.ir.index.Index;
 import cz.zcu.kiv.nlp.ir.index.Indexable;
-import cz.zcu.kiv.nlp.ir.index.TfIdfIndex;
-import cz.zcu.kiv.nlp.ir.index.query.DefaultQueryParser;
 import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
-import cz.zcu.kiv.nlp.ir.preprocess.DefaultPreprocessor;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
-import cz.zcu.kiv.nlp.ir.preprocess.normalizer.DefaultNormalizer;
-import cz.zcu.kiv.nlp.ir.preprocess.normalizer.Normalizer;
-import cz.zcu.kiv.nlp.ir.preprocess.stemmer.CzechStemmerAgressive;
-import cz.zcu.kiv.nlp.ir.preprocess.stemmer.Stemmer;
-import cz.zcu.kiv.nlp.ir.preprocess.stopwords.DefaultStopwordsRemover;
-import cz.zcu.kiv.nlp.ir.preprocess.stopwords.StopwordsRemover;
-import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.DefaultTokenizer;
-import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.Tokenizer;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 import cz.zcu.kiv.nlp.ir.userInterafce.CommandLineInterface;
 import cz.zcu.kiv.nlp.ir.userInterafce.UserCommand;
@@ -56,9 +41,10 @@ public class Main {
       return;
     }
 
-    // TODO use custom preprocessor in query parser??
-    final Preprocessor preprocessor = createPreprocessor();
-    final Index index = new TfIdfIndex(preprocessor, new DefaultQueryParser());
+    final Factory factory = new DefaultFactory();
+
+    final Preprocessor preprocessor = factory.createPreprocessor(PreprocessorType.LUCENE);
+    final Index index = factory.createIndex(preprocessor);
     if (!index.hasData()) {
       final Storage<? extends Article> storage = config.getStorage();
       if (!storage.hasData()) {
@@ -108,14 +94,6 @@ public class Main {
     return new Crawler(downloader, politenessIntervalMillis, urlStorage, storage);
   }
 
-  private static Preprocessor createPreprocessor() {
-    final Tokenizer tokenizer = new DefaultTokenizer(LoggerFactory.getILoggerFactory());
-    final Stemmer stemmer = new CzechStemmerAgressive();
-    final Normalizer normalizer = new DefaultNormalizer();
-    final StopwordsRemover stopwordsRemover = new DefaultStopwordsRemover(loadStopwords());
-    return new DefaultPreprocessor(tokenizer, stemmer, normalizer, stopwordsRemover);
-  }
-
   private static void printResult(final List<QueryResult> result, final Index index) {
     System.out.printf("Found %d documents.\n", result.size());
     for (final var queryResult : result) {
@@ -125,16 +103,6 @@ public class Main {
 
       System.out.format("Document ID: %s, score: %.5f, title: %s...\n", document.getId(), queryResult.getScore(),
           document.getTitle().subSequence(0, Math.min(50, document.getTitle().length())));
-    }
-  }
-
-  private static Set<String> loadStopwords() {
-    try {
-      return FileUtils.readLines(new FileInputStream(new File("stopwords.txt"))).stream()
-          .collect(Collectors.toSet());
-    } catch (IOException e) {
-      System.err.println("File not found: stopwords.txt\n" + e.getMessage());
-      return Collections.emptySet();
     }
   }
 
