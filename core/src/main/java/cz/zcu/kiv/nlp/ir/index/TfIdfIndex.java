@@ -275,7 +275,7 @@ public class TfIdfIndex implements Index {
       }
 
       throw new IllegalStateException(
-          "Unknown operation for query type {}".formatted(clause.getQuery().getClass().getName()));
+          "Unknown operation for query type %s".formatted(clause.getQuery().getClass().getName()));
     }
 
     final String rawQueryString = query.tokenizeAndConcat();
@@ -322,7 +322,7 @@ public class TfIdfIndex implements Index {
         left.removeAll(right);
         break;
       default:
-        throw new IllegalArgumentException("Unknown operation for occur {}".formatted(occur));
+        throw new IllegalArgumentException("Unknown operation for occur %s".formatted(occur));
     }
   }
 

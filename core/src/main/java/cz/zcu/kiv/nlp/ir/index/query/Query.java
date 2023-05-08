@@ -102,7 +102,7 @@ public class Query {
       }
 
       throw new IllegalStateException(
-          "Unknown operation got query type {}".formatted(clause.getQuery().getClass().getName()));
+          "Unknown operation got query type %s".formatted(clause.getQuery().getClass().getName()));
     }
 
     return stringBuilder.toString().trim();
