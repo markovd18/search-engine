@@ -1,5 +1,7 @@
 package cz.zcu.kiv.nlp.ir.index;
 
+import java.util.Optional;
+
 /**
  * Interface representing any object that may be passed to {@link Index}
  * to be indexed.
@@ -34,5 +36,11 @@ public interface Indexable {
    * {@link java.util.Date} implementation.
    */
   String getDate();
+
+  /**
+   * Optionally returns a custom ID that may or may not be present.
+   * 
+   */
+  Optional<String> getCustomId();
 
 }

@@ -42,6 +42,9 @@ To reduce the overhead of crawling the urls in every run, those are stored in th
 ### 4. Presenting the interface
 After all the previous steps, the user is presented with the previously mentioned CLI that allows them to interact with the application.
 
+## Indexing custom articles
+It is possible to index custom documents that comply by the expected format. All you need to do is simply add your documents to the `storage` directory. Next time you run the application, it will load your stored documents and index them.
+
 ## Building from sources
 To build the executable from sources, set the working directory to the root of the project and run
 

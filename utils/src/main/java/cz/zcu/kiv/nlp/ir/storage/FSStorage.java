@@ -161,7 +161,7 @@ public class FSStorage<TDocument> implements Storage<TDocument> {
     for (final var entry : directory.listFiles()) {
       try {
         documents.add(fileLoader.loadFromFile(entry));
-      } catch (final IOException e) {
+      } catch (final Exception e) {
         logger.error("Error while loading document from storage", e);
       }
     }

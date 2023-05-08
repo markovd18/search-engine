@@ -19,6 +19,8 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
 
 import cz.zcu.kiv.nlp.ir.data.DefaultQueryResult;
 import cz.zcu.kiv.nlp.ir.data.Document;
@@ -38,17 +40,21 @@ public class TfIdfIndex implements Index {
   private static final long DEFAULT_RESULT_SIZE = 10;
   private static final SearchModel DEFAULT_SEARCH_MODEL = SearchModel.VECTOR;
 
+  private final Logger logger;
   private final Preprocessor preprocessor;
   private final QueryParser queryParser;
 
   private Dictionary dictionary = new Dictionary();
   private Map<Long, DocumentIndex> documents = new HashMap<>();
 
-  public TfIdfIndex(final Preprocessor preprocessor, final QueryParser queryParser) {
+  public TfIdfIndex(final Preprocessor preprocessor, final QueryParser queryParser,
+      final ILoggerFactory loggerFactory) {
     checkNotNull(preprocessor, "Preprocessor");
     checkNotNull(queryParser, "Query Parser");
+    checkNotNull(loggerFactory, "Logger factory");
     this.preprocessor = preprocessor;
     this.queryParser = queryParser;
+    this.logger = loggerFactory.getLogger(getClass().getName());
   }
 
   @Override
@@ -57,16 +63,19 @@ public class TfIdfIndex implements Index {
       return;
     }
 
+    logger.info("Indexing {} documents...", documents.size());
     final var documentIndexes = documents.stream()
         .map(DocumentIndex::fromIndexable)
         .toList();
 
     dictionary.clear();
+    logger.debug("Tokenizing documents...");
     for (final var document : documentIndexes) {
       final var tokens = document.tokenize(preprocessor);
       dictionary.addRecords(tokens.stream().collect(Collectors.toSet()), document.getId());
     }
 
+    logger.debug("Calcilating weights...");
     final long documentCount = documentIndexes.size();
     for (final var entry : dictionary.getRecords()) {
       final String term = entry.getTerm();
@@ -79,6 +88,7 @@ public class TfIdfIndex implements Index {
       }
     }
 
+    logger.info("Normalizing weights...");
     for (final var document : documentIndexes) {
       normalizeDocumentWeights(document);
     }
@@ -86,6 +96,7 @@ public class TfIdfIndex implements Index {
     this.documents = documentIndexes
         .stream()
         .collect(Collectors.toMap(DocumentIndex::getId, Function.identity()));
+    logger.info("Indexing finished.");
   }
 
   @Override
@@ -111,16 +122,21 @@ public class TfIdfIndex implements Index {
 
   public List<QueryResult> queryNDocuments(final String queryString, final SearchModel searchModel, final long n) {
     checkNotNull(queryString, "Query");
+    logger.info("Querrying '{}'...\n", queryString);
     System.out.format("Querrying '%s'...\n", queryString);
     if (documents == null || documents.isEmpty()) {
       return Collections.emptyList();
     }
 
     if (searchModel == SearchModel.BOOLEAN) {
-      return evaluateBooleanModelQuery(queryString, n);
+      final var result = evaluateBooleanModelQuery(queryString, n);
+      logger.info("Found {} documents.", result.size());
+      return result;
     }
 
-    return evaluateVectorModelQuery(queryString, n);
+    final var result = evaluateVectorModelQuery(queryString, n);
+    logger.info("Found {} documents.", result.size());
+    return result;
   }
 
   private DocumentIndex createQueryDocument(final String rawQueryString) {
@@ -267,7 +283,7 @@ public class TfIdfIndex implements Index {
     final var resultQueue = mapToResultQueue(result, (posting) -> {
       final var document = documents.get(posting);
       final double score = normalizedCosineSimiliarity(document, queryDocument);
-      return new DefaultQueryResult(posting, score);
+      return new DefaultQueryResult(posting, score, document.getCustomId().orElse(null));
     });
 
     return resultQueueToListOfN(resultQueue, resultSize);
@@ -287,7 +303,8 @@ public class TfIdfIndex implements Index {
     final var postings = entry.getPostings();
     final var queue = mapToResultQueue(postings, (posting) -> {
       final var document = documents.get(posting);
-      return new DefaultQueryResult(posting, document.getTermWeight(entry.getTerm()));
+      return new DefaultQueryResult(posting, document.getTermWeight(entry.getTerm()),
+          document.getCustomId().orElse(null));
     });
 
     return resultQueueToListOfN(queue, resultSize);
@@ -314,7 +331,7 @@ public class TfIdfIndex implements Index {
     final var queryDocument = createQueryDocument(queryString);
     final var queue = mapToResultQueue(documents.values(), (document) -> {
       final double cosineSimiliarity = normalizedCosineSimiliarity(document, queryDocument);
-      return new DefaultQueryResult(document.getId(), cosineSimiliarity);
+      return new DefaultQueryResult(document.getId(), cosineSimiliarity, document.getCustomId().orElse(null));
     });
 
     return resultQueueToListOfN(queue, resultSize);

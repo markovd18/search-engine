@@ -101,8 +101,13 @@ public class Main {
       final var document = index.getDocument(documentId)
           .orElseThrow(() -> new IllegalStateException("Document not found."));
 
-      System.out.format("Document ID: %s, score: %.5f, title: %s...\n", document.getId(), queryResult.getScore(),
-          document.getTitle().subSequence(0, Math.min(50, document.getTitle().length())));
+      System.out.format("Document ID: %s, score: %.5f\nTitle: %s\nAuthor: %s\nDate published: %s\n\n%s...\n\n",
+          document.getId(),
+          queryResult.getScore(),
+          document.getTitle(),
+          document.getAuthor(),
+          document.getDate(),
+          document.getText().subSequence(0, Math.min(500, document.getText().length())));
     }
   }
 

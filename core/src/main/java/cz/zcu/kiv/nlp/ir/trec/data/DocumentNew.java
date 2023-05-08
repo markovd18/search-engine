@@ -2,6 +2,7 @@ package cz.zcu.kiv.nlp.ir.trec.data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 
 import cz.zcu.kiv.nlp.ir.data.Document;
 
@@ -52,6 +53,11 @@ public class DocumentNew implements Document, Serializable {
   @Override
   public String getAuthor() {
     return "";
+  }
+
+  @Override
+  public Optional<String> getCustomId() {
+    return Optional.ofNullable(id);
   }
 
 }

@@ -30,10 +30,12 @@ public class DefaultQueryResult implements QueryResult, Comparable<QueryResult> 
     private final long documentId;
     private long rank = 0;
     private final double score;
+    private final String customId;
 
-    public DefaultQueryResult(final long documentId, final double score) {
+    public DefaultQueryResult(final long documentId, final double score, final String customId) {
         this.documentId = documentId;
         this.score = score;
+        this.customId = customId;
     }
 
     @Override
@@ -70,7 +72,8 @@ public class DefaultQueryResult implements QueryResult, Comparable<QueryResult> 
      */
     @Override
     public String toString(final String topic) {
-        return topic + " Q0 " + documentId + " " + rank + " " + score + " runindex1";
+        return topic + " Q0 " + (customId != null ? customId : ("d" + documentId)) + " " + rank + " " + score
+                + " runindex1";
     }
 
     @Override
