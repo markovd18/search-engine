@@ -5,6 +5,7 @@ import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,17 +27,20 @@ public class DocumentIndex implements Document {
   private final String author;
   private final String date;
   private final String text;
+  private final String customId;
 
   /**
    * Constructs new document index with all fields present.
    * 
    */
-  public DocumentIndex(final String title, final String author, final String date, final String text) {
+  public DocumentIndex(final String title, final String author, final String date, final String text,
+      final String customId) {
     this.id = nextId++;
     this.title = title;
     this.author = author;
     this.date = date;
     this.text = text;
+    this.customId = customId;
   }
 
   /**
@@ -44,7 +48,7 @@ public class DocumentIndex implements Document {
    * 
    */
   public DocumentIndex(final String text) {
-    this("", "", "", text);
+    this("", "", "", text, null);
   }
 
   /**
@@ -53,7 +57,8 @@ public class DocumentIndex implements Document {
    */
   public static DocumentIndex fromIndexable(final Indexable document) {
     checkNotNull(document, "Document");
-    return new DocumentIndex(document.getTitle(), document.getAuthor(), document.getDate(), document.getText());
+    return new DocumentIndex(document.getTitle(), document.getAuthor(), document.getDate(), document.getText(),
+        document.getCustomId().orElse(null));
   }
 
   /**
@@ -137,5 +142,10 @@ public class DocumentIndex implements Document {
 
   private String getContent() {
     return String.join("\n", title, author, date, text);
+  }
+
+  @Override
+  public Optional<String> getCustomId() {
+    return Optional.ofNullable(customId);
   }
 }

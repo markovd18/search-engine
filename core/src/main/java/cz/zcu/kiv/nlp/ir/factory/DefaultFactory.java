@@ -75,7 +75,7 @@ public class DefaultFactory implements Factory {
 
   @Override
   public Index createIndex(final Preprocessor preprocessor) {
-    return new TfIdfIndex(preprocessor, new DefaultQueryParser(createLuceneAnalyzer()));
+    return new TfIdfIndex(preprocessor, new DefaultQueryParser(createLuceneAnalyzer()), LoggerFactory.getILoggerFactory());
   }
 
   private Analyzer createLuceneAnalyzer() {

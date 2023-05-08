@@ -105,6 +105,27 @@
               <finalName>search-engine-${project.version}</finalName>
             </configuration>
           </execution>
+
+          <execution>
+            <phase>package</phase>
+            <id>eval</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>
+                    cz.zcu.kiv.nlp.ir.TestTrecEval
+                  </mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>search-engine-eval</finalName>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>

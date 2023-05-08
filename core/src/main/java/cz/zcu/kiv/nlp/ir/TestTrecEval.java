@@ -80,7 +80,7 @@ public class TestTrecEval {
 
             // jen pomocí description (t.getDescription())
             // nebo jejich kombinací (t.getTitle() + " " + t.getDescription())
-            List<QueryResult> resultHits = index.search(t.getTitle());
+            List<QueryResult> resultHits = index.search(t.getTitle() + " " + t.getDescription());
 
             Comparator<QueryResult> cmp = new Comparator<QueryResult>() {
                 public int compare(QueryResult o1, QueryResult o2) {
