@@ -24,5 +24,6 @@ target
 !**/java/**/storage
 !**/java/**/index
 !**/java/**/urls
+!**/java/**/trec
 
 **/chromedriver

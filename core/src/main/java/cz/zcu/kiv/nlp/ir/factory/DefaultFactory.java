@@ -34,6 +34,9 @@ import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.DefaultTokenizer;
 import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.Tokenizer;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 
+/**
+ * Default implementation of {@link Factory}.
+ */
 public class DefaultFactory implements Factory {
 
   @Override

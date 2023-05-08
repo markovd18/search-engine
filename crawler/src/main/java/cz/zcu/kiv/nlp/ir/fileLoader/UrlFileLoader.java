@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import cz.zcu.kiv.nlp.ir.FileUtils;
 
+/**
+ * A {@link FileLoader} that loads URLs from a file.
+ */
 public class UrlFileLoader implements FileLoader<Set<String>> {
 
   @Override

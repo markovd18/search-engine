@@ -1,11 +1,15 @@
 package cz.zcu.kiv.nlp.ir.article;
 
+/**
+ * Indexable article from {@link https://www.hokej.cz/}.
+ */
 public record HokejCzArticle(
     String title,
     String author,
     String date,
     String content) implements Article {
 
+  /** Regex matching the published date format present in the article. */
   public static final String DATE_PATTERN = "\\d\\d?\\.\\ [\\wú]+\\ \\d\\d?:\\d\\d";
 
   @Override

@@ -9,12 +9,19 @@ import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 import cz.zcu.kiv.nlp.ir.fileLoader.HokejCzArticleLoader;
 import cz.zcu.kiv.nlp.ir.storage.FSStorage;
 import cz.zcu.kiv.nlp.ir.storage.HokejCzArticleContentFormatter;
-import cz.zcu.kiv.nlp.ir.storage.InMemoryStorage;
 import cz.zcu.kiv.nlp.ir.storage.StorableContentFormatter;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 import cz.zcu.kiv.nlp.ir.storage.StorageType;
 
+/**
+ * Command options that may be passed to {@code Search Engine} from CLI. Each
+ * option defines not only it's name and description but also the handler when
+ * the value is present in the command-line.
+ */
 public enum CommandOption {
+  /**
+   * Allows to specify a {@link Storage} implementation to be used.
+   */
   STORAGE("s", "storage", false, "storage-detail", "specify a storage to use (memory/file)") {
     @Override
     void handleOption(CommandLine commandLine, ConfigurationBuilder config) {
@@ -24,47 +31,37 @@ public enum CommandOption {
           .orElseThrow(() -> new IllegalArgumentException("Invalid storage type"));
 
       Storage<HokejCzArticle> storage = null;
-      if (storageType == StorageType.FILE_BASED) {
-        final FileLoader<HokejCzArticle> fileLoader = new HokejCzArticleLoader();
-        final StorableContentFormatter contentFormatter = new HokejCzArticleContentFormatter();
-        storage = new FSStorage<HokejCzArticle>(FSStorage.DEFAULT_PATH, fileLoader, contentFormatter,
-            LoggerFactory.getILoggerFactory());
-      } else {
-        storage = new InMemoryStorage<>(null);
+      if (storageType == StorageType.IN_MEMORY) {
+        throw new UnsupportedOperationException("In-memory storage is not supported");
       }
+
+      final FileLoader<HokejCzArticle> fileLoader = new HokejCzArticleLoader();
+      final StorableContentFormatter contentFormatter = new HokejCzArticleContentFormatter();
+      storage = new FSStorage<HokejCzArticle>(FSStorage.DEFAULT_PATH, fileLoader, contentFormatter,
+          LoggerFactory.getILoggerFactory());
 
       config.storage(storage);
     }
   },
-  MODEL("m", "model", false, "model-type", "specify engine model (boolean/vector)") {
-
-    @Override
-    void handleOption(CommandLine commandLine, ConfigurationBuilder config) {
-      final var model = commandLine.getOptionValue(getLongName(), "boolean");
-      // TODO Interface
-      config.model(model);
-    }
-  },
+  /**
+   * Prints usage info.
+   */
   HELP("h", "help", false, null, "print usage info") {
 
     @Override
     void handleOption(CommandLine commandLine, ConfigurationBuilder config) {
       config.justPrintHelp(commandLine.hasOption(getLongName()));
     }
-  },
-  INDEX("i", "index", false, "index-type", "Type of index to use (memory/file)") {
-    @Override
-    void handleOption(CommandLine commandLine, ConfigurationBuilder config) {
-      final var index = commandLine.getOptionValue(getLongName(), "boolean");
-      // TODO interface
-      config.index(index);
-    }
   };
 
+  /** Short option name (eg. -h) */
   private final String shortName;
+  /** Long option name (eg. --help) */
   private final String longName;
+  /** Is the option required? */
   private final boolean required;
   private final String argName;
+  /** Description of this command line option. */
   private final String description;
 
   abstract void handleOption(final CommandLine commandLine, final ConfigurationBuilder config);

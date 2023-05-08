@@ -13,6 +13,9 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * A {@link Preprocessor} that uses Lucene's {@link Analyzer} to preprocess text.
+ */
 public class LucenePreprocessor implements Preprocessor {
 
   private final Logger logger;

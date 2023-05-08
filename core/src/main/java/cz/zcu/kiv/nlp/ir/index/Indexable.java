@@ -1,29 +1,37 @@
 package cz.zcu.kiv.nlp.ir.index;
 
+/**
+ * Interface representing any object that may be passed to {@link Index}
+ * to be indexed.
+ */
 public interface Indexable {
 
   /**
-   * Text záznamu
+   * Returns the text of the indexable object.
    * 
-   * @return text
+   * @return the text of the indexable object
    */
   String getText();
 
   /**
-   * Autor záznamu.
+   * Returns the author of the indexable object.
    * 
+   * @return the author of the indexable object
    */
   String getAuthor();
 
   /**
-   * Titulek dokumentu
+   * Returns the title of the indexable object.
    * 
-   * @return titulek dokumentu
+   * @return the title of the indexable object
    */
   String getTitle();
 
   /**
-   * Datum publikace dokumentu
+   * Returns a date that is connected to the indexable object. It is returned as
+   * string
+   * therefore the format may be customized and does not rely on the
+   * {@link java.util.Date} implementation.
    */
   String getDate();
 

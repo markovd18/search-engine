@@ -1,7 +1,9 @@
 package cz.zcu.kiv.nlp.ir.data;
 
 /**
- * Created by Tigi on 6.1.2015.**Třída{@link DefaultQueryResult} implementuje
+ * Created by Tigi on 6.1.2015.
+ * 
+ * Třída{@link DefaultQueryResult} implementuje
  * rozhraní {@link QueryResult}
  *
  * Představuje výsledek pro ohodnocené vyhledávání. Tzn. po zadání dotazu
@@ -30,7 +32,6 @@ public class DefaultQueryResult implements QueryResult, Comparable<QueryResult> 
     private final double score;
 
     public DefaultQueryResult(final long documentId, final double score) {
-        // checkNotBlank(documentId, "Document ID");
         this.documentId = documentId;
         this.score = score;
     }

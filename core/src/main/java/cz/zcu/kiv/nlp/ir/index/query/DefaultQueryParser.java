@@ -6,6 +6,11 @@ import org.apache.lucene.queryparser.flexible.precedence.PrecedenceQueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 
+/**
+ * Default {@link QueryParser} implementation. It uses Lucene
+ * {@code queryparser} and {@code analysis} packages to parse the given query.
+ * 
+ */
 public class DefaultQueryParser implements QueryParser {
 
   private final PrecedenceQueryParser parser;

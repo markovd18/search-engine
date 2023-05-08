@@ -2,6 +2,9 @@ package cz.zcu.kiv.nlp.ir;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * A collection of functions for validating function arguments.
+ */
 public class ValidationUtils {
 
   public static <T> void checkNotNull(final T obj, final String objectName) throws IllegalArgumentException {

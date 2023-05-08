@@ -7,6 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import cz.zcu.kiv.nlp.ir.article.HokejCzArticle;
 
+/**
+ * This content formatted provides methods to format raw crawled appearance of
+ * {@link HokejCzArticle} into storable format that may be later loaded back
+ * into memory.
+ */
 public class HokejCzArticleContentFormatter implements StorableContentFormatter {
 
   @Override

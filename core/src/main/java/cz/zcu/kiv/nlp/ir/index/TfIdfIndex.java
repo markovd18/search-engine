@@ -28,9 +28,14 @@ import cz.zcu.kiv.nlp.ir.index.query.QueryParser;
 import cz.zcu.kiv.nlp.ir.index.query.SearchModel;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
 
+/**
+ * {@link Index} that uses Term Frequency-Inverse Document Frequency (TF-IDF) to
+ * calculate weights for each term in each document.
+ */
 public class TfIdfIndex implements Index {
 
-  private static final long DEFAULT_QUERY_SIZE = 10;
+  /** Default number of results returned */
+  private static final long DEFAULT_RESULT_SIZE = 10;
   private static final SearchModel DEFAULT_SEARCH_MODEL = SearchModel.VECTOR;
 
   private final Preprocessor preprocessor;
@@ -85,12 +90,12 @@ public class TfIdfIndex implements Index {
 
   @Override
   public List<QueryResult> search(final String query) {
-    return queryNDocuments(query, DEFAULT_SEARCH_MODEL, DEFAULT_QUERY_SIZE);
+    return queryNDocuments(query, DEFAULT_SEARCH_MODEL, DEFAULT_RESULT_SIZE);
   }
 
   @Override
   public List<QueryResult> search(final String query, SearchModel searchModel) {
-    return queryNDocuments(query, searchModel, DEFAULT_QUERY_SIZE);
+    return queryNDocuments(query, searchModel, DEFAULT_RESULT_SIZE);
   }
 
   @Override

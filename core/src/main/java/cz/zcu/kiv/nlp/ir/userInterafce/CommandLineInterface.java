@@ -10,6 +10,9 @@ import java.util.Scanner;
 
 import cz.zcu.kiv.nlp.ir.Links;
 
+/**
+ * Object providing methods for communicationg with the user.
+ */
 public class CommandLineInterface implements AutoCloseable {
 
   private static final String PROMPT = "> ";

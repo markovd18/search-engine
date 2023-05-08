@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * Default implementation of {@link Tokenizer}.
+ */
 public class DefaultTokenizer implements Tokenizer {
-
-  // TODO check better alternatives for tokenization
-  // video player junk
 
   private static final String hrefRegex = "(((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?))";
   // datum | cislo | html | tecky a ostatniY

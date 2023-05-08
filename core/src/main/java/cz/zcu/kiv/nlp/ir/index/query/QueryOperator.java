@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Specifies different search operators that may be used in boolean query.
+ */
 public enum QueryOperator {
   AND("AND"), OR("OR"), NOT("NOT"), LEFT_PARENTHESES("("), RIGHT_PARENTHESES(")");
 

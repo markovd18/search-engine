@@ -9,6 +9,10 @@ import cz.zcu.kiv.nlp.ir.preprocess.stemmer.Stemmer;
 import cz.zcu.kiv.nlp.ir.preprocess.stopwords.StopwordsRemover;
 import cz.zcu.kiv.nlp.ir.preprocess.tokenizer.Tokenizer;
 
+/**
+ * A {@link Preprocessor} that uses custom {@link Tokenizer} and {@link Stemmer}
+ * to preprocess text.
+ */
 public class DefaultPreprocessor implements Preprocessor {
 
   private final Tokenizer tokenizer;

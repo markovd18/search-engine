@@ -2,6 +2,9 @@ package cz.zcu.kiv.nlp.ir.index;
 
 import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;
 
+/**
+ * Holds a term and its weight.
+ */
 public class TermWeight {
 
   private double weight;

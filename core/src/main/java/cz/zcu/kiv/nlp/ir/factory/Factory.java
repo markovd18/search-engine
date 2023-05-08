@@ -6,6 +6,9 @@ import cz.zcu.kiv.nlp.ir.index.Index;
 import cz.zcu.kiv.nlp.ir.preprocess.Preprocessor;
 import cz.zcu.kiv.nlp.ir.storage.Storage;
 
+/**
+ * Interface representing a factory for creating key modules of the application.
+ */
 public interface Factory {
 
   Preprocessor createPreprocessor(PreprocessorType type);
