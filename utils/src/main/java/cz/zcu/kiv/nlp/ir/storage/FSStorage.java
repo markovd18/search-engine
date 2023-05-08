@@ -20,8 +20,15 @@ import org.slf4j.Logger;
 import cz.zcu.kiv.nlp.ir.FileUtils;
 import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 
+/**
+ * This {@link Storage} implementation provides an interface to store objects
+ * into and load them from files in file system.
+ */
 public class FSStorage<TDocument> implements Storage<TDocument> {
 
+  /**
+   * Default path to the storage directory.
+   */
   public static final String DEFAULT_PATH = "storage";
   public static final String ENTRY_FILE_NAME_PREFIX = "entry-";
   public static final String ENTRY_FILE_NAME_SUFFIX = ".txt";

@@ -15,7 +15,7 @@
   <artifactId>search-engine-crawler</artifactId>
   <name>Search Engine Crawler</name>
   <version>1.0-SNAPSHOT</version>
-  <description></description>
+  <description>Module responsible for crawling the web for articles.</description>
   <inceptionYear>2023</inceptionYear>
   <packaging>jar</packaging>
   <url></url>

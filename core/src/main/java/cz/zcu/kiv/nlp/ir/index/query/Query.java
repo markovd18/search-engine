@@ -8,6 +8,9 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 
+/**
+ * Query object representing a parsed query string.
+ */
 public class Query {
 
   private final BooleanQuery booleanQuery;
@@ -18,14 +21,24 @@ public class Query {
     this.booleanQuery = booleanQuery;
   }
 
+  /**
+   * Constructs a new boolean query.
+   * 
+   */
   public static Query booleanQuery(final BooleanQuery booleanQuery) {
     return new Query(booleanQuery, null);
   }
 
+  /**
+   * Constructs a new term query.
+   */
   public static Query termQuery(final TermQuery termQuery) {
     return new Query(null, termQuery);
   }
 
+  /**
+   * Constructs a new invalid query.
+   */
   public static Query invalidQuery() {
     return new Query(null, null);
   }
@@ -50,6 +63,10 @@ public class Query {
     return booleanQuery == null && termQuery == null;
   }
 
+  /**
+   * Tokenizes the underlying query object back into a query string and strips all
+   * possible special characters leaving just space delimited terms.
+   */
   public String tokenizeAndConcat() {
     if (isInvalid()) {
       return "";

@@ -1,8 +1,12 @@
 package cz.zcu.kiv.nlp.ir;
 
 import cz.zcu.kiv.nlp.ir.data.*;
+import cz.zcu.kiv.nlp.ir.factory.DefaultFactory;
+import cz.zcu.kiv.nlp.ir.factory.Factory;
+import cz.zcu.kiv.nlp.ir.factory.PreprocessorType;
 import cz.zcu.kiv.nlp.ir.index.Index;
-import cz.zcu.kiv.nlp.ir.index.TfIdfIndex;
+import cz.zcu.kiv.nlp.ir.index.Indexable;
+import cz.zcu.kiv.nlp.ir.trec.data.Topic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,18 +43,20 @@ public class TestTrecEval {
      */
     public static void main(String args[]) throws IOException {
 
-        // TODO zde vytvořte objekt vaší implementované třídy Index
-        Index index = new TfIdfIndex(null, null);
+        final Factory factory = new DefaultFactory();
+        final var preprocessor = factory.createPreprocessor(PreprocessorType.LUCENE);
+        final var index = factory.createIndex(preprocessor);
 
-        Collection<Topic> topics = SerializedDataHelper.loadData(new File(OUTPUT_DIR + "/topicData.bin"), Topic.class);
+        Collection<Topic> topics = SerializedDataHelper.loadData(new File(OUTPUT_DIR
+                + "/topicData.bin"), Topic.class);
 
         File serializedData = new File(OUTPUT_DIR + "/czechData.bin");
 
-        Collection<Document> documents = new ArrayList<Document>();
+        Collection<Indexable> documents = new ArrayList<>();
         log.info("load");
         try {
             if (serializedData.exists()) {
-                documents = SerializedDataHelper.loadData(serializedData, Document.class);
+                documents = SerializedDataHelper.loadData(serializedData, Indexable.class);
             } else {
                 log.error("Cannot find " + serializedData);
             }
@@ -58,20 +64,23 @@ public class TestTrecEval {
             e.printStackTrace();
         }
         log.info("Documents: " + documents.size());
-
+        index.index(documents.stream().toList());
         List<String> lines = new ArrayList<String>();
 
         for (Topic t : topics) {
             // TODO vytvoření dotazu, třída Topic představuje dotaz pro vyhledávání v
             // zaindexovaných dokumentech
-            // a obsahuje tři textová pole title, description a narrative. To jak sestavíte
+            // a obsahuje tři textová pole title, description a narrative. To jak
+            // sestavíte
             // dotaz je na Vás a pravděpodobně
             // to ovlivní výsledné vyhledávání - zkuste změnit a uvidíte jaký MAP (Mean
             // Average Precision) dostanete pro jednotlivé
-            // kombinace např. pokud budete vyhledávat jen pomocí title (t.getTitle()) nebo
+            // kombinace např. pokud budete vyhledávat jen pomocí title (t.getTitle())
+            // nebo
+
             // jen pomocí description (t.getDescription())
             // nebo jejich kombinací (t.getTitle() + " " + t.getDescription())
-            List<QueryResult> resultHits = index.search(t.getTitle() + " " + t.getDescription());
+            List<QueryResult> resultHits = index.search(t.getTitle());
 
             Comparator<QueryResult> cmp = new Comparator<QueryResult>() {
                 public int compare(QueryResult o1, QueryResult o2) {
@@ -93,8 +102,11 @@ public class TestTrecEval {
             }
         }
         final File outputFile = new File(
-                OUTPUT_DIR + "/results " + SerializedDataHelper.SDF.format(System.currentTimeMillis()) + ".txt");
+                OUTPUT_DIR + "/results-" +
+                        SerializedDataHelper.SDF.format(System.currentTimeMillis()) + ".txt");
         FileUtils.saveFile(outputFile, lines);
+        // final File outputFile = new File(OUTPUT_DIR +
+        // "/results-2023-05-08_10_36_193.txt");
         // try to run evaluation
         try {
             runTrecEval(outputFile.toString());

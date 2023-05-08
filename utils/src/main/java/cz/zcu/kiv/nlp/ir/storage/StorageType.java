@@ -3,6 +3,11 @@ package cz.zcu.kiv.nlp.ir.storage;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Specifies different types of {@link Storage} implementations that may be used
+ * in the application and also their unique argument name that identifies them
+ * and can be passed from the command line.
+ */
 public enum StorageType {
   IN_MEMORY("memory"), FILE_BASED("file");
 

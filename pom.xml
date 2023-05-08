@@ -8,7 +8,7 @@
     <artifactId>search-engine</artifactId>
     <name>Search Engine</name>
     <version>1.0-SNAPSHOT</version>
-    <description></description>
+    <description>A simple search engine that allows indexation of documents in expected format and their later full-text search. Indexed articles are crawled from the web and stored.</description>
     <inceptionYear>2023</inceptionYear>
     <packaging>pom</packaging>
     <url></url>

@@ -3,22 +3,16 @@ package cz.zcu.kiv.nlp.ir.data;
 import cz.zcu.kiv.nlp.ir.index.Indexable;
 
 /**
- * Created by Tigi on 8.1.2015.
  *
- * Rozhraní reprezentuje dokument, který je možné indexovat a vyhledávat.
- *
- * Implementujte toto rozhranní.
- *
- * Pokud potřebujete můžete do rozhranní přidat metody, ale signaturu
- * stávajících metod neměnte.
- *
+ * Interface reprezenting a document that may not only be indexed but also
+ * searched for.
+ * 
  */
 public interface Document extends Indexable {
 
     /**
-     * Unikátní id dokumentu
+     * Returns a unique ID of the document.
      * 
-     * @return id dokumentu
      */
     long getId();
 

@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+/**
+ * Holds information about terms.
+ */
 public class VerbInfo {
   private final String term;
   private long documentFrequency = 0;

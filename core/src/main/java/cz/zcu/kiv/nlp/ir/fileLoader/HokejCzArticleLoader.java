@@ -6,6 +6,10 @@ import java.io.IOException;
 import cz.zcu.kiv.nlp.ir.FileUtils;
 import cz.zcu.kiv.nlp.ir.article.HokejCzArticle;
 
+/**
+ * Implementation of {@link FileLoader} that loads {@link HokejCzArticle} from
+ * file into memory.
+ */
 public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
 
   private static final String datePattern = "\\d\\d?\\.\\ [\\wú]+\\ \\d\\d?:\\d\\d";

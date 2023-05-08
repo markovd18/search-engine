@@ -15,6 +15,9 @@ import org.slf4j.Logger;
 
 import cz.zcu.kiv.nlp.ir.fileLoader.FileLoader;
 
+/**
+ * Represents a storage for crawled urls.
+ */
 public class UrlStorage {
 
   private final Logger logger;
@@ -50,10 +53,24 @@ public class UrlStorage {
     }
   }
 
+  /**
+   * Creates a new file in the storage directory.
+   * 
+   * @param name
+   *          name of the file
+   * @return the created file object
+   */
   public File createFile(final String name) {
     return new File(basePath + "/" + name);
   }
 
+  /**
+   * Loads the urls from a file in the storage directory.
+   * 
+   * @param path
+   *          the path to the file in the storage directory
+   * @return loaded set of urls
+   */
   public Set<String> loadUrls(final String path) {
     final var urlsFile = createFile(path);
     if (!urlsFile.exists() || urlsFile.isDirectory()) {
@@ -68,6 +85,14 @@ public class UrlStorage {
     }
   }
 
+  /**
+   * Saves given set of urls into a file in the storage directory.
+   * 
+   * @param urls
+   *          set of urls to be stored
+   * @param path
+   *          the path to the file in the storage directory
+   */
   public void saveUrls(final Set<String> urls, final String path) {
     try {
       FileUtils.saveFile(createFile(path), urls);

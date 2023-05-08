@@ -3,6 +3,9 @@ package cz.zcu.kiv.nlp.ir.index;
 import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotBlank;
 import static cz.zcu.kiv.nlp.ir.ValidationUtils.checkNotNull;;
 
+/**
+ * Holds a term and information about it.
+ */
 public class Verb {
 
   private final String term;

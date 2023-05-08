@@ -1,5 +1,8 @@
 package cz.zcu.kiv.nlp.ir.preprocess.normalizer;
 
+/**
+ * Default implementation of {@link Normalizer}.
+ */
 public class DefaultNormalizer implements Normalizer {
 
   @Override

@@ -15,6 +15,9 @@ import org.slf4j.Logger;
 
 import cz.zcu.kiv.nlp.ir.Configuration;
 
+/**
+ * Command line options parser.
+ */
 public class CommandParser {
 
   private final Logger logger;
@@ -45,6 +48,13 @@ public class CommandParser {
     }
   }
 
+  /**
+   * Parses command line arguments and returns corresponding application
+   * configuration.
+   * 
+   * @param args
+   *          command line arguments
+   */
   public Configuration parse(final String[] args) {
     final var parser = new DefaultParser();
     try {
