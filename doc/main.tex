@@ -123,6 +123,7 @@ Po spuštění může uživatel se systémem interagovat pomocí uživatelského
     \begin{itemize}
         \item volitelným parametrem \texttt{--model} lze specifikovat jaký vyhledávací model se má při vyhledávání použít; aktuálně podporovanými variantami jsou \textit{Booleovský model} a \textit{Vektorový model}, přičemž vektorový model je výchozí variantou
     \end{itemize}
+    \item \texttt{url <url>} - vyhledá zadanou URL (musí být absolutní z \url{https://hokej.cz} nebo relativní), ze které zpracuje článek; zpracovaný článek je uložen do úložiště dokumentů a je zaindexován při dalším spuštění aplikace
 \end{itemize}
 
 Po zadání dotazu jsou vyhledány odpovídající dokumenty v indexu a jsou kompaktně prezentovány na uživatelském rozhraní. Uveden je použitý vyhledávací model, počet nalezených dokumentů a u každého nalezeného dokumentu je uvedeno jeho celočíselné ID, skóre, titulek, autor článku, datum publikace a krátký úryvek ze začátku obsahu. Seznam vyhledaných výsledků je navíc seřazen podle skóre sestupně (viz obr. \ref{fig:ui}).
@@ -187,6 +188,7 @@ Zde je uveden seznam nadstandardních implementovaných funkčností oproti zák
     \item Snadno rozšiřitelná parametrizace spouštění systému pomocí přepínačů
     \item Cache jednotlivých kroků při startu systému
     \item Integrace web-crawleru do systému
+    \item Crawlování zadané URL adresy a získání článku, který je později zaindexován
 \end{itemize}
 
 \section{Výsledky TREC evaluace}

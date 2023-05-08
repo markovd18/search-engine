@@ -59,9 +59,6 @@ public class Main {
       index.index(documents);
     }
 
-    final var testResult = index.search("Druhá řada bude svým způsobem pardubická");
-    printResult(testResult, index);
-
     try (final CommandLineInterface userInterface = new CommandLineInterface(System.in, System.out)) {
       var input = UserInput.pass();
       while (input.getCommand() != UserCommand.EXIT) {
@@ -73,7 +70,7 @@ public class Main {
         }
 
         if (command == UserCommand.URL) {
-          handleUrlCommand(input);
+          handleUrlCommand(input, config.getStorage());
           continue;
         }
 
@@ -95,7 +92,7 @@ public class Main {
   }
 
   private static void printResult(final List<QueryResult> result, final Index index) {
-    System.out.printf("Found %d documents.\n", result.size());
+    System.out.printf("Found %d documents.\n\n", result.size());
     for (final var queryResult : result) {
       final var documentId = queryResult.getDocumentId();
       final var document = index.getDocument(documentId)
@@ -122,9 +119,16 @@ public class Main {
     printResult(result, index);
   }
 
-  private static void handleUrlCommand(final UserInput input) {
+  private static void handleUrlCommand(final UserInput input, final Storage<? extends Article> storage) {
+    final Crawler crawler = createCrawler(DEFAULT_CRAWLER_POLITENESS_INTERVAL, storage);
     final var url = input.getCommandArgument().orElseThrow(() -> new IllegalStateException("No URL provided"));
-    System.out.printf("Indexing URL %s...\n", url);
+    System.out.printf("Crawling URL %s...\n", url);
+    final var success = crawler.crawlArticleFromUrl(url);
+    if (!success) {
+      System.out.println("Error while crawling url: %s. See logs for more information.".formatted(url));
+    }
+    System.out.println("Crawling finished.");
+    System.out.println("Please, restart the engine to reindex and query crawled article.");
   }
 
   private static void handleClearCommand() {

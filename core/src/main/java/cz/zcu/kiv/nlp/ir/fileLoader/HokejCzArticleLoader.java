@@ -12,8 +12,6 @@ import cz.zcu.kiv.nlp.ir.article.HokejCzArticle;
  */
 public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
 
-  private static final String datePattern = "\\d\\d?\\.\\ [\\wú]+\\ \\d\\d?:\\d\\d";
-
   @Override
   public HokejCzArticle loadFromFile(final File file) throws IOException, IllegalArgumentException {
     final var lines = FileUtils.readLines(new FileInputStream(file));
@@ -28,7 +26,7 @@ public class HokejCzArticleLoader implements FileLoader<HokejCzArticle> {
     StringBuilder contentBuilder = new StringBuilder();
     for (final String line : lines) {
       if (date == null) {
-        date = line.matches(datePattern) ? line : null;
+        date = line.matches(HokejCzArticle.DATE_PATTERN) ? line : null;
         continue;
       }
 

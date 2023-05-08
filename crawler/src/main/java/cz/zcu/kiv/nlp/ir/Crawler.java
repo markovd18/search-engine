@@ -90,6 +90,22 @@ public class Crawler {
         logger.info("-----------------------------");
     }
 
+    public boolean crawlArticleFromUrl(final String url) {
+        final var fullUrl = Links.prependBaseUrlIfNeeded(url, SITE);
+        if (!Links.hasBaseUrl(fullUrl, SITE)) {
+            logger.error("Cannot crawl article from url: {} - it is not from {}", url, SITE);
+            return false;
+        }
+
+        final var content = processUrl(url, 1, 1);
+        final boolean savedSuccessfully = articleStorage.saveEntry(content);
+        if (!savedSuccessfully) {
+            logger.error("Couldn't save article no.");
+        }
+
+        return savedSuccessfully;
+    }
+
     private Set<String> loadUrls() {
         final var storedUrls = urlStorage.loadUrls(URLS_STORAGE_PATH);
         if (!storedUrls.isEmpty()) {

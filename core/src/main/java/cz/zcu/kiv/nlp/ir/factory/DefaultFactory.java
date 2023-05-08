@@ -53,7 +53,7 @@ public class DefaultFactory implements Factory {
       return new DefaultPreprocessor(tokenizer, stemmer, normalizer, stopwordsRemover);
     }
 
-    throw new IllegalArgumentException("Implementation for preprocessor type not found(type : {})".formatted(type));
+    throw new IllegalArgumentException("Implementation for preprocessor type not found(type : %s)".formatted(type));
   }
 
   @Override
@@ -75,7 +75,8 @@ public class DefaultFactory implements Factory {
 
   @Override
   public Index createIndex(final Preprocessor preprocessor) {
-    return new TfIdfIndex(preprocessor, new DefaultQueryParser(createLuceneAnalyzer()), LoggerFactory.getILoggerFactory());
+    return new TfIdfIndex(preprocessor, new DefaultQueryParser(createLuceneAnalyzer()),
+        LoggerFactory.getILoggerFactory());
   }
 
   private Analyzer createLuceneAnalyzer() {
