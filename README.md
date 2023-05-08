@@ -45,6 +45,8 @@ After all the previous steps, the user is presented with the previously mentione
 ## Indexing custom articles
 It is possible to index custom documents that comply by the expected format. All you need to do is simply add your documents to the `storage` directory. Next time you run the application, it will load your stored documents and index them.
 
+Sample documents can be found on [this address](https://drive.google.com/drive/folders/1Hpq9KVBkCT0rHaH_o0YG8jhCs1CLgQGX?usp=sharing).
+
 ## Building from sources
 To build the executable from sources, set the working directory to the root of the project and run
 
